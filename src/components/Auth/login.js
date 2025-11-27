@@ -88,7 +88,8 @@ export default function Login() {
 
     // Demo login check
     if (UserId === "E000769" && password === "password123") {
-      alert("Login successful!");
+      // alert("Login successful!");
+      window.location.href = "/dashboard"; // Redirect to dashboard
     } else {
       setError("Invalid credentials!");
     }
