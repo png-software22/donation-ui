@@ -22,7 +22,6 @@ export default function DonorForm() {
     country: "",
     amount: "",
     mode: "",
-    date: "",
     notes: "",
   });
 
@@ -155,25 +154,14 @@ export default function DonorForm() {
                     <option>Cash</option>
                     <option>Online</option>
                     <option>Cheque</option>
+                    <option>UPI</option> {/* ← Added */}
                   </Input>
                 </FormGroup>
               </Col>
             </Row>
 
             <Row>
-              <Col md={6}>
-                <FormGroup>
-                  <Label>Donation Date</Label>
-                  <Input
-                    type="date"
-                    name="date"
-                    value={form.date}
-                    onChange={handleChange}
-                  />
-                </FormGroup>
-              </Col>
-
-              <Col md={6}>
+              <Col md={12}>
                 <FormGroup>
                   <Label>Notes</Label>
                   <Input
