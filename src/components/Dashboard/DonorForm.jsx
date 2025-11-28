@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardBody,
@@ -10,6 +11,7 @@ import {
   Input,
   Button,
 } from "reactstrap";
+import { API_END_POINT, API_END_POINT_BASE_URL } from "../../constant";
 
 export default function DonorForm() {
   const [form, setForm] = useState({
@@ -28,6 +30,10 @@ export default function DonorForm() {
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+  useEffect(()=>{
+    const  resp = axios.get(`${API_END_POINT_BASE_URL}/states`)
+    console.log('response from api ', resp)
+  }, [])
 
   return (
     <div className="mt-4 px-4">
@@ -36,7 +42,6 @@ export default function DonorForm() {
       <Card className="shadow-sm border-0">
         <CardBody>
           <Form>
-
             {/* Personal Details */}
             <h5 className="fw-semibold mb-3">Personal Details</h5>
 
