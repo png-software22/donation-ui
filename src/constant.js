@@ -1,0 +1,1 @@
+export const API_END_POINT_BASE_URL = 'http://localhost:8080'
