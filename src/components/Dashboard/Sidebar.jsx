@@ -1,115 +1,84 @@
 import { useState } from "react";
 import { Nav, NavItem } from "reactstrap";
+import "./sidebar.css";
+
 import {
   FiHome,
   FiUsers,
   FiFileText,
   FiArrowLeftCircle,
   FiArrowRightCircle,
-  FiLayers
+  FiLayers,
+  FiLogOut
 } from "react-icons/fi";
 
 export default function Sidebar({ onMenuSelect, activeMenu }) {
   const [open, setOpen] = useState(true);
 
+  const handleLogout = () => {
+    localStorage.clear();
+    window.location.href = "/";
+  };
+
   return (
-    <div
-      style={{
-        height: "100vh",
-        width: open ? "240px" : "80px",
-        backgroundColor: "#4B49AC",
-        transition: "0.3s",
-        color: "white",
-        paddingTop: "20px",
-        position: "fixed",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          justifyContent: open ? "space-between" : "center",
-          alignItems: "center",
-          padding: "0 15px",
-          marginBottom: "25px",
-        }}
-      >
-        {open && <h4 style={{ margin: 0 }}>Dharamshala</h4>}
+    <div className={`sidebar ${open ? "open" : "closed"}`}>
+      
+      <div className="sidebar-header">
+        {open && <h4 className="sidebar-title">Dharamshala</h4>}
 
         <button
           onClick={() => setOpen(!open)}
-          style={{
-            background: "none",
-            border: "none",
-            color: "white",
-            cursor: "pointer",
-          }}
+          className="toggle-btn"
         >
           {open ? <FiArrowLeftCircle size={24} /> : <FiArrowRightCircle size={24} />}
         </button>
       </div>
 
-      <Nav vertical pills style={{ paddingLeft: "10px" }}>
+      <Nav vertical pills className="menu-container">
 
         <NavItem
+          className={`menu-item ${activeMenu === "dashboard" ? "active" : ""} ${!open ? "center-icon" : ""}`}
           onClick={() => onMenuSelect("dashboard")}
-          style={{
-            ...menuItemStyle,
-            backgroundColor: activeMenu === "dashboard" ? "#6C63FF" : "transparent",
-          }}
         >
           <FiHome size={18} />
-          {open && <span style={textStyle}>Dashboard</span>}
+          {open && <span className="menu-text">Dashboard</span>}
         </NavItem>
 
         <NavItem
+          className={`menu-item ${activeMenu === "donations" ? "active" : ""} ${!open ? "center-icon" : ""}`}
           onClick={() => onMenuSelect("donations")}
-          style={{
-            ...menuItemStyle,
-            backgroundColor: activeMenu === "donations" ? "#6C63FF" : "transparent",
-          }}
         >
           <FiUsers size={18} />
-          {open && <span style={textStyle}>Donations</span>}
+          {open && <span className="menu-text">Donations</span>}
         </NavItem>
 
         <NavItem
+          className={`menu-item ${activeMenu === "expenses" ? "active" : ""} ${!open ? "center-icon" : ""}`}
           onClick={() => onMenuSelect("expenses")}
-          style={{
-            ...menuItemStyle,
-            backgroundColor: activeMenu === "expenses" ? "#6C63FF" : "transparent",
-          }}
         >
           <FiFileText size={18} />
-          {open && <span style={textStyle}>Expenses</span>}
+          {open && <span className="menu-text">Expenses</span>}
         </NavItem>
 
         <NavItem
+          className={`menu-item ${activeMenu === "reports" ? "active" : ""} ${!open ? "center-icon" : ""}`}
           onClick={() => onMenuSelect("reports")}
-          style={{
-            ...menuItemStyle,
-            backgroundColor: activeMenu === "reports" ? "#6C63FF" : "transparent",
-          }}
         >
           <FiLayers size={18} />
-          {open && <span style={textStyle}>Reports</span>}
+          {open && <span className="menu-text">Reports</span>}
         </NavItem>
-
       </Nav>
+
+      <div className="logout-container">
+        <div
+          className={`logout-btn ${!open ? "center-icon" : ""}`}
+          onClick={handleLogout}
+        >
+          <FiLogOut size={20} />
+          {open && <span className="menu-text">Logout</span>}
+        </div>
+      </div>
     </div>
   );
 }
 
-const menuItemStyle = {
-  display: "flex",
-  gap: "15px",
-  alignItems: "center",
-  padding: "12px 15px",
-  borderRadius: "8px",
-  cursor: "pointer",
-  color: "white",
-  fontSize: "16px",
-  marginBottom: "10px",
-  transition: "0.2s",
-};
-
-const textStyle = { marginLeft: "10px" };
