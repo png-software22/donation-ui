@@ -1,7 +1,5 @@
-import React, { useEffect, useState } from "react";
 import { fetchStates, fetchCities } from "../../api/stateService";
-
-
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardBody,
@@ -53,6 +51,10 @@ useEffect(() => {
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+  useEffect(()=>{
+    const  resp = axios.get(`${API_END_POINT_BASE_URL}/states`)
+    console.log('response from api ', resp)
+  }, [])
 
   return (
     <div className="mt-4 px-4">
