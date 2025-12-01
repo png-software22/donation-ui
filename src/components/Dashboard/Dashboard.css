@@ -1,116 +1,42 @@
-/* GLOBAL FIX (must for responsiveness) */
-* {
-  box-sizing: border-box;
-}
-
-/* PAGE LAYOUT */
-.layout {
+/* Layout */
+.layout-wrapper {
   display: flex;
-  flex-direction: row;
-  min-height: calc(100vh - 60px);
 }
 
-/* SIDEBAR SECTION */
-.side-panel {
-  width: 300px;
-  background-color: #1890ff;
-  border-right: 1px solid #ffffff50;
-  color: #fff;
-  padding-top: 10px;
+/* Content area beside sidebar */
+.content-area {
+  margin-left: 240px;
+  width: 100%;
+  padding: 25px;
 }
 
-/* MENU TEXT */
-.vertical-menu {
-  line-height: 32px;
-  font-size: 18px;
-  padding: 10px;
+/* Top bar */
+.topbar {
+  background: white;
+  border-radius: 12px;
+  padding: 14px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.09);
 }
 
-/* EACH ITEM */
-.item {
-  cursor: pointer;
-  padding: 12px;
-  border-radius: 4px;
-  transition: 0.2s;
+.topbar h3 {
+  margin: 0;
+  font-weight: 700;
 }
 
-/* HOVER EFFECT */
-.item:hover {
-  background-color: #ffffff30;
-}
-
-/* SELECTED (active) */
-.selected {
-  font-weight: 900;
-  font-size: 20px;
-  text-decoration: underline;
-  background-color: #ffffff40;
-  padding: 12px;
-  border-radius: 5px;
-}
-
-/* MAIN CONTENT */
-.main-section {
-  flex: 1;
-  background-color: #f5f5f5;
-  padding: 30px;
-  font-size: 24px;
-
+/* Profile area */
+.profile-box {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 12px;
+  font-weight: 600;
 }
 
-/* ------------------------------ */
-/* 📱 MOBILE RESPONSIVE SECTION   */
-/* ------------------------------ */
-
-@media (max-width: 768px) {
-
-  /* Make layout vertical */
-  .layout {
-    flex-direction: column;
-  }
-
-  /* Sidebar full width */
-  .side-panel {
-    width: 100%;
-    height: auto;
-    display: flex;
-    flex-direction: row;
-    overflow-x: auto;
-    padding: 10px;
-    gap: 20px;
-  }
-
-  /* Horizontal menu */
-  .vertical-menu {
-    display: flex;
-    flex-direction: row;
-    gap: 20px;
-  }
-
-  /* Menu items shrink properly */
-  .item {
-    white-space: nowrap;
-    font-size: 16px;
-    padding: 10px;
-  }
-
-  /* Selected on mobile */
-  .selected {
-    font-size: 17px;
-    padding: 8px 14px;
-  }
-
-  /* Main content spacing */
-  .main-section {
-    padding: 20px;
-    font-size: 20px;
-  }
+.profile-box img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
 }
-
-
-
-
-

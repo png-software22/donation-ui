@@ -1,4 +1,4 @@
-import axios from "axios";
+import { fetchStates, fetchCities } from "../../api/stateService";
 import React, { useEffect, useState } from "react";
 import {
   Card,
@@ -11,7 +11,6 @@ import {
   Input,
   Button,
 } from "reactstrap";
-import { API_END_POINT, API_END_POINT_BASE_URL } from "../../constant";
 
 export default function DonorForm() {
   const [form, setForm] = useState({
@@ -20,12 +19,34 @@ export default function DonorForm() {
     phone: "",
     phone2: "",
     street: "",
+    state: "",
     city: "",
-    country: "",
     amount: "",
     mode: "",
     notes: "",
   });
+
+  const [states, setStates] = useState([]);  
+  const [cities, setCities] = useState([]);   
+
+ 
+useEffect(() => {
+  fetchStates()
+    .then((res) => setStates(res.data))
+    .catch((err) => console.log(err));
+}, []);
+
+
+ 
+  const handleStateChange = (e) => {
+  const selectedState = e.target.value;
+  setForm({ ...form, state: selectedState, city: "" });
+
+  fetchCities(selectedState)
+    .then((res) => setCities(res.data))
+    .catch((err) => console.log(err));
+};
+
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -106,26 +127,46 @@ export default function DonorForm() {
               </Col>
             </Row>
 
+            {/* STATE + CITY */}
+
             <Row>
               <Col md={4}>
                 <FormGroup>
-                  <Label>City</Label>
+                  <Label>State</Label>
                   <Input
-                    name="city"
-                    value={form.city}
-                    onChange={handleChange}
-                  />
+                    type="select"
+                    name="state"
+                    value={form.state}
+                    onChange={handleStateChange}   // important
+                  >
+                    <option value="">Select State</option>
+
+                    {states.map((st) => (
+                      <option key={st} value={st}>
+                        {st}
+                      </option>
+                    ))}
+                  </Input>
                 </FormGroup>
               </Col>
 
               <Col md={4}>
                 <FormGroup>
-                  <Label>Country</Label>
+                  <Label>City</Label>
                   <Input
-                    name="country"
-                    value={form.country}
+                    type="select"
+                    name="city"
+                    value={form.city}
                     onChange={handleChange}
-                  />
+                  >
+                    <option value="">Select City</option>
+
+                    {cities.map((ct) => (
+                      <option key={ct} value={ct}>
+                        {ct}
+                      </option>
+                    ))}
+                  </Input>
                 </FormGroup>
               </Col>
             </Row>
@@ -159,7 +200,7 @@ export default function DonorForm() {
                     <option>Cash</option>
                     <option>Online</option>
                     <option>Cheque</option>
-                    <option>UPI</option> {/* ← Added */}
+                    <option>UPI</option>
                   </Input>
                 </FormGroup>
               </Col>

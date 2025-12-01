@@ -26,8 +26,8 @@ export default App;*/
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
-import Dashboard from "./components/Dashboard/Dashboard";   // ✅ Only this import
-import Login from "./components/Auth/login";               // If needed
+import Dashboard from "./components/Dashboard/Dashboard";   
+import Login from "./components/Auth/login";               
 
 function App() {
   return (
