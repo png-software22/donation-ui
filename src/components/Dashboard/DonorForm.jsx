@@ -1,7 +1,5 @@
-import React, { useEffect, useState } from "react";
 import { fetchStates, fetchCities } from "../../api/stateService";
-
-
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardBody,
@@ -13,6 +11,7 @@ import {
   Input,
   Button,
 } from "reactstrap";
+import api from "../../api/api";
 
 export default function DonorForm() {
   const [form, setForm] = useState({
@@ -28,31 +27,41 @@ export default function DonorForm() {
     notes: "",
   });
 
-  const [states, setStates] = useState([]);  
-  const [cities, setCities] = useState([]);   
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
 
- 
-useEffect(() => {
-  fetchStates()
-    .then((res) => setStates(res.data))
-    .catch((err) => console.log(err));
-}, []);
+  useEffect(() => {
+    fetchStates()
+      .then((res) => setStates(res.data))
+      .catch((err) => console.log(err));
+  }, []);
 
+  useEffect(() => {
+    if(form.state) {
+    fetchCities(form.state)
+      .then((res) => {
+        setCities(res.data);
+      })
+      .catch((err) => console.log(err));
+    }
+  }, [form.state])
 
- 
   const handleStateChange = (e) => {
-  const selectedState = e.target.value;
-  setForm({ ...form, state: selectedState, city: "" });
+    const selectedState = e.target.value;
+    setForm({ ...form, state: selectedState, city: "" });
 
-  fetchCities(selectedState)
-    .then((res) => setCities(res.data))
-    .catch((err) => console.log(err));
-};
-
+    
+  };
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+  useEffect(() => {
+    api
+      .get(`/states`)
+      .then((data) => setStates(data.data))
+      .catch((err) => console.log("err is", err));
+  }, []);
 
   return (
     <div className="mt-4 px-4">
@@ -135,13 +144,12 @@ useEffect(() => {
                     type="select"
                     name="state"
                     value={form.state}
-                    onChange={handleStateChange}   // important
+                    onChange={handleStateChange} // important
                   >
                     <option value="">Select State</option>
-
                     {states.map((st) => (
-                      <option key={st} value={st}>
-                        {st}
+                      <option key={st.id} value={st.id}>
+                        {st.name}
                       </option>
                     ))}
                   </Input>
@@ -158,10 +166,9 @@ useEffect(() => {
                     onChange={handleChange}
                   >
                     <option value="">Select City</option>
-
-                    {cities.map((ct) => (
-                      <option key={ct} value={ct}>
-                        {ct}
+                    {cities?.map((ct) => (
+                      <option key={ct.id} value={ct.id}>
+                        {ct.name}
                       </option>
                     ))}
                   </Input>
