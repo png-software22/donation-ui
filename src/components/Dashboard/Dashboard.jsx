@@ -12,6 +12,7 @@ import {
   CardTitle,
   Button
 } from "reactstrap";
+import DonorFlow from "./donorFlow";
 
 export default function Dashboard() {
   const [menu, setMenu] = useState("dashboard");
@@ -72,7 +73,7 @@ export default function Dashboard() {
           </Container>
         )}
 
-        {menu === "donations" && <DonorForm />}
+        {menu === "donations" && <DonorFlow />}
         {menu === "expenses" && <h1>Expenses</h1>}
         {menu === "reports" && <h1>Reports</h1>}
       </div>
