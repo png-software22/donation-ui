@@ -12,23 +12,23 @@ import {
   Button,
 } from "reactstrap";
 import api from "../../api/api";
+import axios from "axios";
 
-export default function DonorForm() {
-  const [form, setForm] = useState({
-    firstName: "",
-    lastName: "",
-    phone: "",
-    phone2: "",
-    street: "",
-    state: "",
-    city: "",
-    idProofType: "",
-    idProofNumber: "",
-    amount: "",
-    mode: "",
-    notes: "",
-  });
-
+export default function DonorForm({ donor, isEdit }) {
+  const [form, setForm] = useState(
+    donor ?? {
+      firstName: "",
+      lastName: "",
+      phoneNumber: "",
+      streetAddress: "",
+      stateId: "",
+      cityId: "",
+      idProofType: "",
+      idProofNumber: "",
+      customAddress: "",
+    }
+  );
+  const [domicile, setDomicile] = useState(form.customAddress ? 'Foreigner' :"Indian");
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
 
@@ -39,19 +39,18 @@ export default function DonorForm() {
   }, []);
 
   useEffect(() => {
-    if (form.state) {
-      fetchCities(form.state)
+    if (form.stateId) {
+      fetchCities(form.stateId)
         .then((res) => {
           setCities(res.data);
         })
         .catch((err) => console.log(err));
     }
-  }, [form.state]);
-  
+  }, [form.stateId]);
 
   const handleStateChange = (e) => {
     const selectedState = e.target.value;
-    setForm({ ...form, state: selectedState, city: "" });
+    setForm({ ...form, stateId: selectedState, cityId: "" });
   };
 
   const handleChange = (e) => {
@@ -96,88 +95,103 @@ export default function DonorForm() {
                   />
                 </FormGroup>
               </Col>
-            </Row>
 
-            <Row>
               <Col md={6}>
                 <FormGroup>
                   <Label>Phone</Label>
                   <Input
-                    name="phone"
-                    value={form.phone}
+                    name="phoneNumber"
+                    value={form.phoneNumber}
                     onChange={handleChange}
                   />
                 </FormGroup>
               </Col>
 
-              <Col md={6}>
-                <FormGroup>
-                  <Label>Phone Number 2 (optional)</Label>
-                  <Input
-                    name="phone2"
-                    value={form.phone2}
-                    onChange={handleChange}
-                  />
-                </FormGroup>
-              </Col>
-            </Row>
-
-            <Row>
               <Col md={12}>
                 <FormGroup>
                   <Label>Street Address</Label>
                   <Input
-                    name="street"
-                    value={form.street}
+                    name="streetAddress"
+                    value={form.streetAddress}
                     onChange={handleChange}
                   />
                 </FormGroup>
               </Col>
-            </Row>
-
-            {/* STATE + CITY */}
-
-            <Row>
-              <Col md={4}>
-                <FormGroup>
-                  <Label>State</Label>
-                  <Input
-                    type="select"
-                    name="state"
-                    value={form.state}
-                    onChange={handleStateChange} // important
-                  >
-                    <option value="">Select State</option>
-                    {states.map((st) => (
-                      <option key={st.id} value={st.id}>
-                        {st.name}
-                      </option>
-                    ))}
-                  </Input>
-                </FormGroup>
+              <Col xs={12}>
+                Donor Domicile:
+                <input
+                  onChange={(e) =>
+                    setDomicile(e.target.value ? "Indian" : "Foreigner")
+                  }
+                  value="Indian"
+                  type="radio"
+                  name="addressType"
+                />{" "}
+                Indian
+                <input
+                  onChange={(e) =>
+                    setDomicile(e.target.value ? "Foreigner" : "Indian")
+                  }
+                  value="Foreigner"
+                  type="radio"
+                  name="addressType"
+                />{" "}
+                Foreigner
               </Col>
+              {/* STATE + CITY */}
 
-              <Col md={4}>
-                <FormGroup>
-                  <Label>City</Label>
-                  <Input
-                    type="select"
-                    name="city"
-                    value={form.city}
-                    onChange={handleChange}
-                  >
-                    <option value="">Select City</option>
-                    {cities?.map((ct) => (
-                      <option key={ct.id} value={ct.id}>
-                        {ct.name}
-                      </option>
-                    ))}
-                  </Input>
-                </FormGroup>
-              </Col>
-            </Row>
+              {domicile === "Indian" ? (
+                <>
+                  <Col md={4}>
+                    <FormGroup>
+                      <Label>State</Label>
+                      <Input
+                        type="select"
+                        name="stateId"
+                        value={form.stateId}
+                        onChange={handleStateChange} // important
+                      >
+                        <option value="">Select State</option>
+                        {states.map((st) => (
+                          <option key={st.id} value={st.id}>
+                            {st.name}
+                          </option>
+                        ))}
+                      </Input>
+                    </FormGroup>
+                  </Col>
 
-            <Row>
+                  <Col md={4}>
+                    <FormGroup>
+                      <Label>City</Label>
+                      <Input
+                        type="select"
+                        name="cityId"
+                        value={form.cityId}
+                        onChange={handleChange}
+                      >
+                        <option value="">Select City</option>
+                        {cities?.map((ct) => (
+                          <option key={ct.id} value={ct.id}>
+                            {ct.name}
+                          </option>
+                        ))}
+                      </Input>
+                    </FormGroup>
+                  </Col>
+                </>
+              ) : (
+                <Col xs={12}>
+                  <FormGroup>
+                    <Label>Address</Label>
+                    <Input
+                      name="customAddress"
+                      value={form.customAddress}
+                      onChange={handleChange}
+                    />
+                  </FormGroup>
+                </Col>
+              )}
               <Col md={6}>
                 <FormGroup>
                   <Label>ID Proof Type</Label>
@@ -209,7 +223,7 @@ export default function DonorForm() {
               </Col>
             </Row>
 
-            {/* Donation Details */}
+            {/* Donation Details
             <h5 className="fw-semibold mt-4 mb-3">Donation Details</h5>
 
             <Row>
@@ -255,11 +269,30 @@ export default function DonorForm() {
                   />
                 </FormGroup>
               </Col>
-            </Row>
-
-            <Button color="primary" className="mt-3 px-4">
-              Save Donor
+            </Row> */}
+            <div className="d-flex justify-content-end">
+            <Button color="primary" className="mt-3 px-4" onClick={() => {
+              if(isEdit) {
+                // create an PUT API call to update donor
+              } else {
+                const dataToSend = {...form};
+                if(domicile === 'Foreigner') {
+                  delete dataToSend.stateId;
+                  delete dataToSend.cityId;
+                }
+                axios.post('http://localhost:8080/donors', {
+                   ...dataToSend
+                }).then((res) => {
+                  console.log('res from api is', res);
+                }).catch((err) => {
+                  console.log('api ne rror ditta')
+                })
+                // call create donor api to create a new donor
+              }
+            }}>
+             {isEdit ? 'Update' :'Save Donor'}
             </Button>
+            </div>
           </Form>
         </CardBody>
       </Card>

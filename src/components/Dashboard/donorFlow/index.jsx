@@ -3,6 +3,7 @@ import { Button, Input, Table } from "reactstrap";
 import DonorForm from "../DonorForm";
 import { fetchDonors } from "../../../api/stateService";
 import api from "../../../api/api";
+import AddDonationForm from "./addDonationForm";
 
 const DonorFlow = () => {
   const [donationFlowStep, setDonationFlowStep] = useState("SEARCH_EXISTING");
@@ -16,14 +17,15 @@ const DonorFlow = () => {
   const handleEdit = (donor) => {
     api.get(`/donors/${donor.id}`)
       .then(res => {
-        setSelectedDonor(res.data); // Full detail from backend
+        console.log('res.data', res.data)
+        setSelectedDonor(res.data);
         setDonationFlowStep("EDIT_DONOR");
       })
       .catch(err => console.log(err));
   };
 
   if (donationFlowStep === "EDIT_DONOR") {
-    return <DonorForm donor={selectedDonor} />;
+    return <DonorForm donor={selectedDonor} isEdit />;
   }
 
   if (donationFlowStep === "ASK") {
@@ -44,6 +46,9 @@ const DonorFlow = () => {
 
   if (donationFlowStep === "CREATE_NEW_DONOR") {
     return <DonorForm />;
+  }
+  if(donationFlowStep === 'ADD_DONATION') {
+    return <AddDonationForm donorDetails={selectedDonor} />
   }
 
   if (donationFlowStep === "SEARCH_EXISTING") {
@@ -101,16 +106,25 @@ const DonorFlow = () => {
                     <td>{donorInfo.phoneNumber}</td>
                     <td>{donorInfo.idProofNumber}</td>
                     <td>
-                      <Button size="sm" color="primary" onClick={() => handleEdit(donorInfo)}>
+                     <div className="d-flex justify-space-between gap-10">
+                      <Button color="primary" onClick={() =>{setDonationFlowStep('ADD_DONATION')
+                        setSelectedDonor(donorInfo)
+                      }}>
+                        Add a Donation
+                      </Button>
+                      <Button size="sm"  onClick={() => handleEdit(donorInfo)}>
                         Edit
                       </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </>
           ) : (
-            <>No Donors Exists</>
+            <>No Donors Exists <Button onClick={() => {
+                setDonationFlowStep('CREATE_NEW_DONOR')
+            }}>Create a new Donor</Button></>
           )}
         </Table>
       </div>
