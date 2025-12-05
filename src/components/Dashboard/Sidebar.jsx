@@ -22,14 +22,10 @@ export default function Sidebar({ onMenuSelect, activeMenu }) {
 
   return (
     <div className={`sidebar ${open ? "open" : "closed"}`}>
-      
       <div className="sidebar-header">
         {open && <h4 className="sidebar-title">Dharamshala</h4>}
 
-        <button
-          onClick={() => setOpen(!open)}
-          className="toggle-btn"
-        >
+        <button onClick={() => setOpen(!open)} className="toggle-btn">
           {open ? <FiArrowLeftCircle size={24} /> : <FiArrowRightCircle size={24} />}
         </button>
       </div>
@@ -44,6 +40,16 @@ export default function Sidebar({ onMenuSelect, activeMenu }) {
           {open && <span className="menu-text">Dashboard</span>}
         </NavItem>
 
+        {/* Add Donation */}
+        <NavItem
+          className={`menu-item ${activeMenu === "add-donation" ? "active" : ""} ${!open ? "center-icon" : ""}`}
+          onClick={() => onMenuSelect("add-donation")}
+        >
+          <FiUsers size={18} />
+          {open && <span className="menu-text">Add Donation</span>}
+        </NavItem>
+
+        {/* Donations List */}
         <NavItem
           className={`menu-item ${activeMenu === "donations" ? "active" : ""} ${!open ? "center-icon" : ""}`}
           onClick={() => onMenuSelect("donations")}
@@ -81,4 +87,3 @@ export default function Sidebar({ onMenuSelect, activeMenu }) {
     </div>
   );
 }
-

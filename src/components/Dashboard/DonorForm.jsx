@@ -22,6 +22,8 @@ export default function DonorForm() {
     street: "",
     state: "",
     city: "",
+    idProofType: "",
+    idProofNumber: "",
     amount: "",
     mode: "",
     notes: "",
@@ -37,20 +39,19 @@ export default function DonorForm() {
   }, []);
 
   useEffect(() => {
-    if(form.state) {
-    fetchCities(form.state)
-      .then((res) => {
-        setCities(res.data);
-      })
-      .catch((err) => console.log(err));
+    if (form.state) {
+      fetchCities(form.state)
+        .then((res) => {
+          setCities(res.data);
+        })
+        .catch((err) => console.log(err));
     }
-  }, [form.state])
+  }, [form.state]);
+  
 
   const handleStateChange = (e) => {
     const selectedState = e.target.value;
     setForm({ ...form, state: selectedState, city: "" });
-
-    
   };
 
   const handleChange = (e) => {
@@ -172,6 +173,38 @@ export default function DonorForm() {
                       </option>
                     ))}
                   </Input>
+                </FormGroup>
+              </Col>
+            </Row>
+
+            <Row>
+              <Col md={6}>
+                <FormGroup>
+                  <Label>ID Proof Type</Label>
+                  <Input
+                    type="select"
+                    name="idProofType"
+                    value={form.idProofType}
+                    onChange={handleChange}
+                  >
+                    <option value="">Select</option>
+                    <option value="ADHAAR">Aadhaar</option>
+                    <option value="PASSPORT">Passport</option>
+                    <option value="DRIVING_LICENSE">Driving License</option>
+                    <option value="VOTER_ID">Voter ID</option>
+                    <option value="PAN_CARD">PAN Card</option>
+                  </Input>
+                </FormGroup>
+              </Col>
+
+              <Col md={6}>
+                <FormGroup>
+                  <Label>ID Proof Number</Label>
+                  <Input
+                    name="idProofNumber"
+                    value={form.idProofNumber}
+                    onChange={handleChange}
+                  />
                 </FormGroup>
               </Col>
             </Row>

@@ -10,7 +10,7 @@ import {
   Card,
   CardBody,
   CardTitle,
-  Button
+  Button,
 } from "reactstrap";
 import DonorFlow from "./donorFlow";
 
@@ -22,7 +22,6 @@ export default function Dashboard() {
       <Sidebar onMenuSelect={setMenu} activeMenu={menu} />
 
       <div className="content-area">
-        
         {/* TOP TITLE BAR */}
         <div className="topbar">
           <h3>{menu.charAt(0).toUpperCase() + menu.slice(1)}</h3>
@@ -65,19 +64,31 @@ export default function Dashboard() {
               </Col>
             </Row>
 
-            <div className="mt-4">
-              <Button color="primary" className="me-2">View Reports</Button>
-              <Button color="success" className="me-2">Add Donation</Button>
-              <Button color="info">Add Expense</Button>
+             <div className="mt-4">
+              <Button color="primary" className="me-2" onClick={() => setMenu("reports")}>
+                View Reports
+              </Button>
+
+              <Button
+                color="success"
+                className="me-2"
+                onClick={() => setMenu("add-donation")}
+              >
+                Add Donation
+              </Button>
+
+              <Button color="info" onClick={() => setMenu("expenses")}>
+                Add Expense
+              </Button>
             </div>
           </Container>
         )}
 
         {menu === "donations" && <DonorFlow />}
+        {menu === "add-donation" && <DonorForm />}
         {menu === "expenses" && <h1>Expenses</h1>}
         {menu === "reports" && <h1>Reports</h1>}
       </div>
     </div>
   );
 }
-

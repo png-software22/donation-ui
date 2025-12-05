@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button, Input, Table } from "reactstrap";
 import DonorForm from "../DonorForm";
 import { fetchDonors } from "../../../api/stateService";
+import api from "../../../api/api";
 
 const DonorFlow = () => {
   const [donationFlowStep, setDonationFlowStep] = useState("SEARCH_EXISTING");
@@ -10,72 +11,74 @@ const DonorFlow = () => {
     value: "",
   });
   const [donors, setDonors] = useState([]);
+  const [selectedDonor, setSelectedDonor] = useState(null);
+
+  const handleEdit = (donor) => {
+    api.get(`/donors/${donor.id}`)
+      .then(res => {
+        setSelectedDonor(res.data); // Full detail from backend
+        setDonationFlowStep("EDIT_DONOR");
+      })
+      .catch(err => console.log(err));
+  };
+
+  if (donationFlowStep === "EDIT_DONOR") {
+    return <DonorForm donor={selectedDonor} />;
+  }
 
   if (donationFlowStep === "ASK") {
     return (
       <div className=" d-flex justify-content-center flex-column align-center">
         <Button
-          variant="primary"
-          onClick={() => {
-            setDonationFlowStep("SEARCH_EXISTING");
-          }}
-          className="button-primary text-center"
+          onClick={() => setDonationFlowStep("SEARCH_EXISTING")}
         >
           Search Existing Donor
         </Button>
         <span className="text-center">Or</span>
-        <Button
-          onClick={() => {
-            setDonationFlowStep("CREATE_NEW_DONOR");
-          }}
-        >
+        <Button onClick={() => setDonationFlowStep("CREATE_NEW_DONOR")}>
           Create New Donor
         </Button>
       </div>
     );
   }
+
   if (donationFlowStep === "CREATE_NEW_DONOR") {
     return <DonorForm />;
   }
+
   if (donationFlowStep === "SEARCH_EXISTING") {
     return (
-      <div
-        className="d-flex flex-column justify-center align-center"
-        style={{ gap: 10 }}
-      >
+      <div className="d-flex flex-column justify-center align-center" style={{ gap: 10 }}>
         <span>search by:</span>
         <Input
           placeholder="Phone Number"
-          onChange={(e) => {
+          onChange={(e) =>
             setSearchByAndValue({
               filterBy: "phoneNumber",
               value: e.target.value,
-            });
-          }}
+            })
+          }
         />
         <Input
           placeholder="Donor Identification Number"
-          onChange={(e) => {
+          onChange={(e) =>
             setSearchByAndValue({
               filterBy: "idProofNumber",
               value: e.target.value,
-            });
-          }}
+            })
+          }
         />
+
         <Button
           onClick={() => {
             fetchDonors(searchByAndValue.filterBy, searchByAndValue.value)
-              .then((res) => {
-                console.log("response", res);
-                setDonors(res.data);
-              })
-              .catch((res) => {
-                console.log("err", res);
-              });
+              .then((res) => setDonors(res.data))
+              .catch((res) => console.log(res));
           }}
         >
           Search
         </Button>
+
         <Table>
           {donors.count ? (
             <>
@@ -84,20 +87,26 @@ const DonorFlow = () => {
                   <th>#</th>
                   <th>First Name</th>
                   <th>Last Name</th>
-                  <th>phoneNumber</th>
-                  <th>idProofNumber</th>
+                  <th>Phone Number</th>
+                  <th>ID Proof Number</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
-                {donors.data?.map((donorInfo, index) => {
-                    return <tr>
-                        <td>{index+1}</td>
-                        <td>{donorInfo.firstName}</td>
-                        <td>{donorInfo.lastName}</td>
-                        <td>{donorInfo.phoneNumber}</td>
-                        <td>{donorInfo.idProofNumber}</td>
-                    </tr>
-                })}
+                {donors.data?.map((donorInfo, index) => (
+                  <tr key={donorInfo.id}>
+                    <td>{index + 1}</td>
+                    <td>{donorInfo.firstName}</td>
+                    <td>{donorInfo.lastName}</td>
+                    <td>{donorInfo.phoneNumber}</td>
+                    <td>{donorInfo.idProofNumber}</td>
+                    <td>
+                      <Button size="sm" color="primary" onClick={() => handleEdit(donorInfo)}>
+                        Edit
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </>
           ) : (
@@ -108,4 +117,5 @@ const DonorFlow = () => {
     );
   }
 };
+
 export default DonorFlow;
