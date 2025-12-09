@@ -3,6 +3,10 @@ import Sidebar from "./Sidebar";
 import DonorForm from "./DonorForm";
 import "./Dashboard.css";
 
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+
 import {
   Container,
   Row,
@@ -89,6 +93,7 @@ export default function Dashboard() {
         {menu === "expenses" && <h1>Expenses</h1>}
         {menu === "reports" && <h1>Reports</h1>}
       </div>
+      <ToastContainer position="top-right" autoClose={2000} />
     </div>
   );
 }

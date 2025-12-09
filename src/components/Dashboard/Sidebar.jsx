@@ -15,6 +15,14 @@ import {
 export default function Sidebar({ onMenuSelect, activeMenu }) {
   const [open, setOpen] = useState(true);
 
+  const menuItems = [
+    { key: "dashboard", label: "Dashboard", icon: <FiHome size={18} /> },
+    { key: "add-donation", label: "Add Donation", icon: <FiUsers size={18} /> },
+    { key: "donations", label: "Donations", icon: <FiUsers size={18} /> },
+    { key: "expenses", label: "Expenses", icon: <FiFileText size={18} /> },
+    { key: "reports", label: "Reports", icon: <FiLayers size={18} /> },
+  ];
+
   const handleLogout = () => {
     localStorage.clear();
     window.location.href = "/";
@@ -31,48 +39,17 @@ export default function Sidebar({ onMenuSelect, activeMenu }) {
       </div>
 
       <Nav vertical pills className="menu-container">
-
-        <NavItem
-          className={`menu-item ${activeMenu === "dashboard" ? "active" : ""} ${!open ? "center-icon" : ""}`}
-          onClick={() => onMenuSelect("dashboard")}
-        >
-          <FiHome size={18} />
-          {open && <span className="menu-text">Dashboard</span>}
-        </NavItem>
-
-        {/* Add Donation */}
-        <NavItem
-          className={`menu-item ${activeMenu === "add-donation" ? "active" : ""} ${!open ? "center-icon" : ""}`}
-          onClick={() => onMenuSelect("add-donation")}
-        >
-          <FiUsers size={18} />
-          {open && <span className="menu-text">Add Donation</span>}
-        </NavItem>
-
-        {/* Donations List */}
-        <NavItem
-          className={`menu-item ${activeMenu === "donations" ? "active" : ""} ${!open ? "center-icon" : ""}`}
-          onClick={() => onMenuSelect("donations")}
-        >
-          <FiUsers size={18} />
-          {open && <span className="menu-text">Donations</span>}
-        </NavItem>
-
-        <NavItem
-          className={`menu-item ${activeMenu === "expenses" ? "active" : ""} ${!open ? "center-icon" : ""}`}
-          onClick={() => onMenuSelect("expenses")}
-        >
-          <FiFileText size={18} />
-          {open && <span className="menu-text">Expenses</span>}
-        </NavItem>
-
-        <NavItem
-          className={`menu-item ${activeMenu === "reports" ? "active" : ""} ${!open ? "center-icon" : ""}`}
-          onClick={() => onMenuSelect("reports")}
-        >
-          <FiLayers size={18} />
-          {open && <span className="menu-text">Reports</span>}
-        </NavItem>
+        {menuItems.map((item) => (
+          <NavItem
+            key={item.key}
+            className={`menu-item ${activeMenu === item.key ? "active" : ""} ${!open ? "center-icon" : ""}`}
+            onClick={() => onMenuSelect(item.key)}
+          >
+            {item.icon}
+            {open && <span className="menu-text">{item.label}</span>}
+            {!open && <span className="tooltip">{item.label}</span>}
+          </NavItem>
+        ))}
       </Nav>
 
       <div className="logout-container">
@@ -82,6 +59,7 @@ export default function Sidebar({ onMenuSelect, activeMenu }) {
         >
           <FiLogOut size={20} />
           {open && <span className="menu-text">Logout</span>}
+          {!open && <span className="tooltip">Logout</span>}
         </div>
       </div>
     </div>

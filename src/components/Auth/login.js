@@ -69,8 +69,20 @@
 //   );
 // }
 import React, { useState } from "react";
-import { Container, Row, Col, Card, CardBody, Form, FormGroup, Label, Input, Button, Alert } from "reactstrap";
-import '../../styles/App.css';
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  CardBody,
+  Form,
+  FormGroup,
+  Label,
+  Input,
+  Button,
+  Alert,
+} from "reactstrap";
+import "../../styles/App.css";
 
 export default function Login() {
   const [UserId, setUserId] = useState("");
@@ -96,10 +108,14 @@ export default function Login() {
   };
 
   return (
-    <Container fluid className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
+    <Container
+      fluid
+      className="d-flex justify-content-center align-items-center"
+      style={{ minHeight: "100vh" }}
+    >
       <Row>
         <Col>
-          <Card className="login-card" style={{ width: '360px' }}>
+          <Card className="login-card" style={{ width: "360px" }}>
             <CardBody>
               <h2 className="primary-color mb-4">Sign In</h2>
               {error && <Alert color="danger">{error}</Alert>}
@@ -124,12 +140,18 @@ export default function Login() {
                     onChange={(e) => setPassword(e.target.value)}
                   />
                 </FormGroup>
-                <Button type="submit" className="w-100 bg-primary" style={{ padding: '16px 24px' }}>
+                <Button
+                  type="submit"
+                  className="w-100 bg-primary"
+                  style={{ padding: "16px 24px" }}
+                >
                   Sign In
                 </Button>
               </Form>
               <div className="mt-2 text-end">
-                <small><a href="#">Forgot password?</a></small>
+                <small>
+                  <button className="link-btn">Forgot password?</button>
+                </small>
               </div>
             </CardBody>
           </Card>

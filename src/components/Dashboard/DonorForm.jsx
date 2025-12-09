@@ -12,65 +12,108 @@ import {
   Button,
 } from "reactstrap";
 import api from "../../api/api";
-import axios from "axios";
+import Loader from "../../Loader/Loader";
+import { toast } from "react-toastify";
 
-export default function DonorForm({ donor, isEdit }) {
-  const [form, setForm] = useState(
-    donor ?? {
-      firstName: "",
-      lastName: "",
-      phoneNumber: "",
-      streetAddress: "",
-      stateId: "",
-      cityId: "",
-      idProofType: "",
-      idProofNumber: "",
-      customAddress: "",
-    }
-  );
-  const [domicile, setDomicile] = useState(form.customAddress ? 'Foreigner' :"Indian");
+export default function DonorForm({ donor, isEdit, goBack }) {
+  const [form, setForm] = useState({
+    firstName: "",
+    lastName: "",
+    phoneNumber: "",
+    streetAddress: "",
+    stateId: "",
+    cityId: "",
+    idProofType: "",
+    idProofNumber: "",
+    customAddress: "",
+  });
+
+  const [domicile, setDomicile] = useState("Indian");
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
+  const [loading, setLoading] = useState(false);
 
+  // Autofill when editing donor
   useEffect(() => {
-    fetchStates()
-      .then((res) => setStates(res.data))
-      .catch((err) => console.log(err));
+    if (donor) {
+      setForm({
+        firstName: donor.firstName || "",
+        lastName: donor.lastName || "",
+        phoneNumber: donor.phoneNumber || "",
+        streetAddress: donor.streetAddress || "",
+        stateId: donor.stateId || "",
+        cityId: donor.cityId || "",
+        idProofType: donor.idProofType || "",
+        idProofNumber: donor.idProofNumber || "",
+        customAddress: donor.customAddress || "",
+      });
+
+      setDomicile(donor.customAddress ? "Foreigner" : "Indian");
+    }
+  }, [donor]);
+
+  // Fetch States
+  useEffect(() => {
+    fetchStates().then((res) => setStates(res.data));
   }, []);
 
+  // Fetch Cities based on State
   useEffect(() => {
     if (form.stateId) {
-      fetchCities(form.stateId)
-        .then((res) => {
-          setCities(res.data);
-        })
-        .catch((err) => console.log(err));
+      fetchCities(form.stateId).then((res) => setCities(res.data));
     }
   }, [form.stateId]);
 
-  const handleStateChange = (e) => {
-    const selectedState = e.target.value;
-    setForm({ ...form, stateId: selectedState, cityId: "" });
-  };
-
-  const handleChange = (e) => {
+  const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
+
+  const handleStateChange = (e) =>
+    setForm({ ...form, stateId: e.target.value, cityId: "" });
+
+  const handleSubmit = () => {
+    const dataToSend = { ...form };
+
+    if (domicile === "Foreigner") {
+      delete dataToSend.stateId;
+      delete dataToSend.cityId;
+    }
+
+    setLoading(true);
+
+    if (isEdit) {
+      // UPDATE Donor
+      api
+        .put(`/donors/${donor.id}/updateDonor`, dataToSend)
+        .then(() => toast.success("Donor Updated Successfully"))
+        .catch(() => toast.error("Failed to update donor"))
+        .finally(() => {
+          setLoading(false);
+          goBack && goBack();
+        });
+    } else {
+      // CREATE Donor
+      api
+        .post(`/donors`, dataToSend)
+        .then(() => toast.success("Donor Created Successfully"))
+        .catch(() => toast.error("Failed to create donor"))
+        .finally(() => {
+          setLoading(false);
+          goBack && goBack();
+        });
+    }
   };
-  useEffect(() => {
-    api
-      .get(`/states`)
-      .then((data) => setStates(data.data))
-      .catch((err) => console.log("err is", err));
-  }, []);
 
   return (
     <div className="mt-4 px-4">
-      <h2 className="fw-bold mb-3">Add New Donor</h2>
+      {loading && <Loader />}
+
+      <h2 className="fw-bold mb-3">
+        {isEdit ? "Edit Donor" : "Add New Donor"}
+      </h2>
 
       <Card className="shadow-sm border-0">
         <CardBody>
           <Form>
-            {/* Personal Details */}
             <h5 className="fw-semibold mb-3">Personal Details</h5>
 
             <Row>
@@ -98,7 +141,7 @@ export default function DonorForm({ donor, isEdit }) {
 
               <Col md={6}>
                 <FormGroup>
-                  <Label>Phone</Label>
+                  <Label>Phone Number</Label>
                   <Input
                     name="phoneNumber"
                     value={form.phoneNumber}
@@ -117,28 +160,22 @@ export default function DonorForm({ donor, isEdit }) {
                   />
                 </FormGroup>
               </Col>
-              <Col xs={12}>
-                Donor Domicile:
-                <input
-                  onChange={(e) =>
-                    setDomicile(e.target.value ? "Indian" : "Foreigner")
-                  }
-                  value="Indian"
+
+              <Col xs={12} className="my-2">
+                <strong>Donor Domicile:</strong> &nbsp;
+                <Input
                   type="radio"
-                  name="addressType"
+                  checked={domicile === "Indian"}
+                  onChange={() => setDomicile("Indian")}
                 />{" "}
-                Indian
-                <input
-                  onChange={(e) =>
-                    setDomicile(e.target.value ? "Foreigner" : "Indian")
-                  }
-                  value="Foreigner"
+                Indian &nbsp;
+                <Input
                   type="radio"
-                  name="addressType"
+                  checked={domicile === "Foreigner"}
+                  onChange={() => setDomicile("Foreigner")}
                 />{" "}
                 Foreigner
               </Col>
-              {/* STATE + CITY */}
 
               {domicile === "Indian" ? (
                 <>
@@ -149,7 +186,7 @@ export default function DonorForm({ donor, isEdit }) {
                         type="select"
                         name="stateId"
                         value={form.stateId}
-                        onChange={handleStateChange} // important
+                        onChange={handleStateChange}
                       >
                         <option value="">Select State</option>
                         {states.map((st) => (
@@ -171,7 +208,7 @@ export default function DonorForm({ donor, isEdit }) {
                         onChange={handleChange}
                       >
                         <option value="">Select City</option>
-                        {cities?.map((ct) => (
+                        {cities.map((ct) => (
                           <option key={ct.id} value={ct.id}>
                             {ct.name}
                           </option>
@@ -181,9 +218,9 @@ export default function DonorForm({ donor, isEdit }) {
                   </Col>
                 </>
               ) : (
-                <Col xs={12}>
+                <Col md={12}>
                   <FormGroup>
-                    <Label>Address</Label>
+                    <Label>Full Address</Label>
                     <Input
                       name="customAddress"
                       value={form.customAddress}
@@ -192,6 +229,7 @@ export default function DonorForm({ donor, isEdit }) {
                   </FormGroup>
                 </Col>
               )}
+
               <Col md={6}>
                 <FormGroup>
                   <Label>ID Proof Type</Label>
@@ -223,75 +261,24 @@ export default function DonorForm({ donor, isEdit }) {
               </Col>
             </Row>
 
-            {/* Donation Details
-            <h5 className="fw-semibold mt-4 mb-3">Donation Details</h5>
-
-            <Row>
-              <Col md={6}>
-                <FormGroup>
-                  <Label>Amount</Label>
-                  <Input
-                    type="number"
-                    name="amount"
-                    value={form.amount}
-                    onChange={handleChange}
-                  />
-                </FormGroup>
-              </Col>
-
-              <Col md={6}>
-                <FormGroup>
-                  <Label>Mode</Label>
-                  <Input
-                    type="select"
-                    name="mode"
-                    value={form.mode}
-                    onChange={handleChange}
-                  >
-                    <option value="">Select</option>
-                    <option>Cash</option>
-                    <option>Online</option>
-                    <option>Cheque</option>
-                    <option>UPI</option>
-                  </Input>
-                </FormGroup>
-              </Col>
-            </Row>
-
-            <Row>
-              <Col md={12}>
-                <FormGroup>
-                  <Label>Notes</Label>
-                  <Input
-                    name="notes"
-                    value={form.notes}
-                    onChange={handleChange}
-                  />
-                </FormGroup>
-              </Col>
-            </Row> */}
-            <div className="d-flex justify-content-end">
-            <Button color="primary" className="mt-3 px-4" onClick={() => {
-              if(isEdit) {
-                // create an PUT API call to update donor
-              } else {
-                const dataToSend = {...form};
-                if(domicile === 'Foreigner') {
-                  delete dataToSend.stateId;
-                  delete dataToSend.cityId;
-                }
-                axios.post('http://localhost:8080/donors', {
-                   ...dataToSend
-                }).then((res) => {
-                  console.log('res from api is', res);
-                }).catch((err) => {
-                  console.log('api ne rror ditta')
-                })
-                // call create donor api to create a new donor
-              }
-            }}>
-             {isEdit ? 'Update' :'Save Donor'}
-            </Button>
+            {/* Buttons */}
+            <div className="d-flex justify-content-end mt-3">
+              <Button
+                color="secondary"
+                className="me-2"
+                onClick={goBack}
+                disabled={loading}
+              >
+                Back
+              </Button>
+              <Button
+                color="primary"
+                className="px-4"
+                onClick={handleSubmit}
+                disabled={loading}
+              >
+                {loading ? "Please wait..." : isEdit ? "Update" : "Save Donor"}
+              </Button>
             </div>
           </Form>
         </CardBody>
