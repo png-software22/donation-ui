@@ -5,7 +5,7 @@ import { fetchDonors } from "../../../api/stateService";
 import api from "../../../api/api";
 import AddDonationForm from "./addDonationForm";
 import Loader from "../../../Loader/Loader";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const DonorFlow = () => {
@@ -18,6 +18,14 @@ const DonorFlow = () => {
   const [selectedDonor, setSelectedDonor] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  const refreshList = () => {
+    setLoading(true);
+    fetchDonors(searchByAndValue.filterBy, searchByAndValue.value)
+      .then((res) => setDonors(res.data))
+      .catch(() => toast.error("Failed to load donors"))
+      .finally(() => setLoading(false));
+  };
+
   const handleEdit = (donor) => {
     setLoading(true);
     api
@@ -26,7 +34,7 @@ const DonorFlow = () => {
         setSelectedDonor(res.data);
         setDonationFlowStep("EDIT_DONOR");
       })
-      .catch((err) => console.log(err))
+      .catch(() => toast.error("Failed to load donor details"))
       .finally(() => setLoading(false));
   };
 
@@ -38,49 +46,27 @@ const DonorFlow = () => {
         setSelectedDonor(res.data);
         setDonationFlowStep("ADD_DONATION");
       })
-      .catch((err) => console.log(err))
+      .catch(() => toast.error("Failed to fetch donor details"))
       .finally(() => setLoading(false));
   };
 
-  if (donationFlowStep === "EDIT_DONOR") {
-    return (
-      <>
-        {loading && <Loader />}
-        <DonorForm
-          donor={selectedDonor}
-          isEdit
-          goBack={() => setDonationFlowStep("SEARCH_EXISTING")}
-        />
-      </>
-    );
-  }
+  const handleGoBack = () => {
+    setDonationFlowStep("SEARCH_EXISTING");
+    refreshList();
+  };
 
-  if (donationFlowStep === "CREATE_NEW_DONOR") {
-    return (
-      <>
-        {loading && <Loader />}
-        <DonorForm goBack={() => setDonationFlowStep("SEARCH_EXISTING")} />
-      </>
-    );
-  }
+  if (donationFlowStep === "EDIT_DONOR")
+    return <DonorForm donor={selectedDonor} isEdit goBack={handleGoBack} />;
 
-  if (donationFlowStep === "ADD_DONATION") {
-    return (
-      <>
-        {loading && <Loader />}
-        <AddDonationForm
-          donorDetails={selectedDonor}
-          goBack={() => setDonationFlowStep("SEARCH_EXISTING")}
-        />
-      </>
-    );
-  }
+  if (donationFlowStep === "CREATE_NEW_DONOR")
+    return <DonorForm goBack={handleGoBack} />;
+
+  if (donationFlowStep === "ADD_DONATION")
+    return <AddDonationForm donorDetails={selectedDonor} goBack={handleGoBack} />;
 
   return (
-    <div
-      className="d-flex flex-column justify-center align-center"
-      style={{ gap: 10 }}
-    >
+    <div className="d-flex flex-column justify-center align-center" style={{ gap: 10 }}>
+      <ToastContainer />
       {loading && <Loader />}
 
       <span>search by:</span>
@@ -105,17 +91,7 @@ const DonorFlow = () => {
         }
       />
 
-      <Button
-        onClick={() => {
-          setLoading(true);
-          fetchDonors(searchByAndValue.filterBy, searchByAndValue.value)
-            .then((res) => setDonors(res.data))
-            .catch((err) => console.log(err))
-            .finally(() => setLoading(false));
-        }}
-      >
-        Search
-      </Button>
+      <Button onClick={refreshList}>Search</Button>
 
       <Table>
         {donors.count ? (
@@ -140,10 +116,7 @@ const DonorFlow = () => {
                   <td>{donorInfo.idProofNumber}</td>
                   <td>
                     <div className="d-flex justify-space-between gap-10">
-                      <Button
-                        color="primary"
-                        onClick={() => handleAddDonation(donorInfo)}
-                      >
+                      <Button color="primary" onClick={() => handleAddDonation(donorInfo)}>
                         Add Donation
                       </Button>
                       <Button size="sm" onClick={() => handleEdit(donorInfo)}>
