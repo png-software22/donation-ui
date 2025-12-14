@@ -54,8 +54,13 @@ const AddDonationForm = ({ donorDetails, goBack }) => {
 
     api
       .post(`/donations`, finalDonation)
-      .then(() => toast.success("Donation Added Successfully"))
-      .catch(() => toast.error("Failed to save donation"))
+      .then(() => {
+        toast.success("Donation Added Successfully");
+      })
+      .catch((err) => {
+        toast.error("Failed to save donation");
+        console.log("Donation Error:", err);
+      })
       .finally(() => {
         setLoading(false);
         goBack();
@@ -68,10 +73,10 @@ const AddDonationForm = ({ donorDetails, goBack }) => {
       {loading && <Loader />}
 
       <h2 className="donation-title">Add Donation</h2>
+
       <p className="donor-info">
-        Donor:
+        Donor:{" "}
         <b>
-          {" "}
           {donorDetails?.firstName} {donorDetails?.lastName}
         </b>
       </p>
@@ -101,7 +106,7 @@ const AddDonationForm = ({ donorDetails, goBack }) => {
                 onChange={handleChange}
                 placeholder={
                   donation.method === "CASH" || !donation.method
-                    ? "Disabled for Cash / select method"
+                    ? "Disabled for Cash / Select method"
                     : "Enter reference number"
                 }
               />
@@ -156,6 +161,7 @@ const AddDonationForm = ({ donorDetails, goBack }) => {
           <Button color="secondary" className="me-2" onClick={goBack}>
             Back
           </Button>
+
           <Button color="primary" onClick={handleSubmit}>
             Save Donation
           </Button>
