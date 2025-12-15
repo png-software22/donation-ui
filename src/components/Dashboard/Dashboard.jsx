@@ -2,11 +2,8 @@ import { useState } from "react";
 import Sidebar from "./Sidebar";
 import DonorForm from "./DonorForm";
 import "./Dashboard.css";
-
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-
 import {
   Container,
   Row,
@@ -68,8 +65,12 @@ export default function Dashboard() {
               </Col>
             </Row>
 
-             <div className="mt-4">
-              <Button color="primary" className="me-2" onClick={() => setMenu("reports")}>
+            <div className="mt-4">
+              <Button
+                color="primary"
+                className="me-2"
+                onClick={() => setMenu("reports")}
+              >
                 View Reports
               </Button>
 

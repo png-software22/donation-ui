@@ -10,18 +10,47 @@ import "react-toastify/dist/ReactToastify.css";
 
 const DonorFlow = () => {
   const [donationFlowStep, setDonationFlowStep] = useState("SEARCH_EXISTING");
-  const [searchByAndValue, setSearchByAndValue] = useState({
-    filterBy: "phoneNumber",
-    value: "",
-  });
+  const [phone, setPhone] = useState("");
+  const [donorId, setDonorId] = useState("");
+
   const [donors, setDonors] = useState({ count: 0, data: [] });
   const [selectedDonor, setSelectedDonor] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  const validateSearch = () => {
+    if (!phone.trim() && !donorId.trim()) {
+      toast.error("Enter Phone Number or Donor Identification Number");
+      return false;
+    }
+
+    if (phone.trim() && !/^[0-9]{10}$/.test(phone.trim())) {
+      toast.error("Phone number must be 10 digits");
+      return false;
+    }
+
+    if (!phone.trim() && donorId.trim().length < 4) {
+      toast.error("Donor Identification Number must be at least 4 characters");
+      return false;
+    }
+
+    return true;
+  };
+
   const refreshList = () => {
+    if (!validateSearch()) return;
+
     setLoading(true);
-    fetchDonors(searchByAndValue.filterBy, searchByAndValue.value)
-      .then((res) => setDonors(res.data))
+
+    const filterBy = phone ? "phoneNumber" : "idProofNumber";
+    const value = phone || donorId;
+
+    fetchDonors(filterBy, value)
+      .then((res) => {
+        if (!res.data.count) {
+          toast.error("No donor found");
+        }
+        setDonors(res.data);
+      })
       .catch(() => toast.error("Failed to load donors"))
       .finally(() => setLoading(false));
   };
@@ -52,7 +81,9 @@ const DonorFlow = () => {
 
   const handleGoBack = () => {
     setDonationFlowStep("SEARCH_EXISTING");
-    refreshList();
+    setPhone("");
+    setDonorId("");
+    setDonors({ count: 0, data: [] });
   };
 
   if (donationFlowStep === "EDIT_DONOR")
@@ -73,22 +104,20 @@ const DonorFlow = () => {
 
       <Input
         placeholder="Phone Number"
-        onChange={(e) =>
-          setSearchByAndValue({
-            filterBy: "phoneNumber",
-            value: e.target.value,
-          })
-        }
+        value={phone}
+        onChange={(e) => {
+          setPhone(e.target.value);
+          setDonorId(""); // Reset donorID if phone is typed
+        }}
       />
 
       <Input
         placeholder="Donor Identification Number"
-        onChange={(e) =>
-          setSearchByAndValue({
-            filterBy: "idProofNumber",
-            value: e.target.value,
-          })
-        }
+        value={donorId}
+        onChange={(e) => {
+          setDonorId(e.target.value);
+          setPhone(""); // Reset phone if donorID is typed
+        }}
       />
 
       <Button onClick={refreshList}>Search</Button>

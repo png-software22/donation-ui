@@ -1,22 +1,35 @@
-.amount-box {
+/* 🔴 Red border when error */
+.input-error {
+  border: 1px solid red !important;
+  box-shadow: 0 0 3px rgba(255, 0, 0, 0.4);
+}
+
+/* ⚠ Error text styling */
+.error-text {
+  color: red;
+  font-size: 13px;
+  margin-top: 3px;
   display: flex;
   align-items: center;
-  border: 1px solid #bbb;
-  border-radius: 6px;
-  padding: 6px 10px;
-  background: white;
+  gap: 5px;
 }
 
-.amount-prefix {
-  font-weight: bold;
-  font-size: 20px;
-  margin-right: 6px;
-  color: #444;
+/* ⚠ icon before text */
+.error-text::before {
+  content: "⚠️";
+  font-size: 15px;
 }
 
-.amount-input {
-  border: none;
-  outline: none;
-  width: 100%;
+/* For amount box (custom wrapper) */
+.amount-box.input-error {
+  border: 1px solid red !important;
+  box-shadow: 0 0 3px rgba(255, 0, 0, 0.4);
+}
+
+/* Compulsory star */
+.required-star {
+  color: red;
+  margin-left: 4px;
   font-size: 18px;
+  font-weight: bold;
 }

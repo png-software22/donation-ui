@@ -20,6 +20,7 @@ export default function DonorForm({ donor, isEdit, goBack }) {
     firstName: "",
     lastName: "",
     phoneNumber: "",
+    email: "",
     streetAddress: "",
     stateId: "",
     cityId: "",
@@ -32,14 +33,81 @@ export default function DonorForm({ donor, isEdit, goBack }) {
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
-  // Autofill when editing donor
+  const validate = () => {
+    let e = {};
+
+    const nameRegex = /^[A-Za-z ]+$/;
+    const phoneRegex = /^[0-9]{10}$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!form.firstName.trim()) e.firstName = "First name is required";
+    else if (!nameRegex.test(form.firstName))
+      e.firstName = "Only alphabets allowed";
+
+    if (!form.lastName.trim()) e.lastName = "Last name is required";
+    else if (!nameRegex.test(form.lastName))
+      e.lastName = "Only alphabets allowed";
+
+    if (!form.phoneNumber.trim()) e.phoneNumber = "Phone number is required";
+    else if (!phoneRegex.test(form.phoneNumber))
+      e.phoneNumber = "Phone number must be 10 digits";
+
+    if (!form.email.trim()) e.email = "Email is required";
+    else if (!emailRegex.test(form.email))
+      e.email = "Invalid email format";
+
+    if (!form.streetAddress.trim())
+      e.streetAddress = "Street address is required";
+
+    if (domicile === "Indian") {
+      if (!form.stateId) e.stateId = "State is required";
+      if (!form.cityId) e.cityId = "City is required";
+    } else {
+      if (!form.customAddress.trim())
+        e.customAddress = "Full address is required";
+    }
+
+    if (!form.idProofType.trim()) e.idProofType = "ID proof type is required";
+    if (!form.idProofNumber.trim())
+      e.idProofNumber = "ID proof number is required";
+
+    setErrors(e);
+
+    if (Object.keys(e).length > 0) {
+      toast.error("Please correct highlighted fields");
+      return false;
+    }
+
+    return true;
+  };
+
+  const resetForm = () => {
+    setForm({
+      firstName: "",
+      lastName: "",
+      phoneNumber: "",
+      email: "",
+      streetAddress: "",
+      stateId: "",
+      cityId: "",
+      idProofType: "",
+      idProofNumber: "",
+      customAddress: "",
+    });
+    setDomicile("Indian");
+    setCities([]);
+    setErrors({});
+  };
+
   useEffect(() => {
     if (donor) {
       setForm({
         firstName: donor.firstName || "",
         lastName: donor.lastName || "",
         phoneNumber: donor.phoneNumber || "",
+        email: donor.email || "",
         streetAddress: donor.streetAddress || "",
         stateId: donor.stateId || "",
         cityId: donor.cityId || "",
@@ -52,25 +120,30 @@ export default function DonorForm({ donor, isEdit, goBack }) {
     }
   }, [donor]);
 
-  // Fetch States
   useEffect(() => {
     fetchStates().then((res) => setStates(res.data));
   }, []);
 
-  // Fetch Cities based on State
   useEffect(() => {
     if (form.stateId) {
       fetchCities(form.stateId).then((res) => setCities(res.data));
     }
   }, [form.stateId]);
 
-  const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+    setErrors({ ...errors, [name]: "" });
+  };
 
-  const handleStateChange = (e) =>
+  const handleStateChange = (e) => {
     setForm({ ...form, stateId: e.target.value, cityId: "" });
+    setErrors({ ...errors, stateId: "", cityId: "" });
+  };
 
   const handleSubmit = () => {
+    if (!validate()) return;
+
     const dataToSend = { ...form };
 
     if (domicile === "Foreigner") {
@@ -81,21 +154,27 @@ export default function DonorForm({ donor, isEdit, goBack }) {
     setLoading(true);
 
     if (isEdit) {
-      // UPDATE Donor
       api
         .put(`/donors/${donor.id}/updateDonor`, dataToSend)
-        .then(() => toast.success("Donor Updated Successfully"))
+        .then(() => {
+          toast.success("Donor Updated Successfully");
+          resetForm();
+        })
         .catch(() => toast.error("Failed to update donor"))
         .finally(() => {
           setLoading(false);
           goBack && goBack();
         });
     } else {
-      // CREATE Donor
       api
         .post(`/donors`, dataToSend)
-        .then(() => toast.success("Donor Created Successfully"))
-        .catch(() => toast.error("Failed to create donor"))
+        .then(() => {
+          toast.success("Donor Created Successfully");
+          resetForm();
+        })
+        .catch((e) => {
+          toast.error(e.response?.data?.message || "Failed to create donor");
+        })
         .finally(() => {
           setLoading(false);
           goBack && goBack();
@@ -124,7 +203,11 @@ export default function DonorForm({ donor, isEdit, goBack }) {
                     name="firstName"
                     value={form.firstName}
                     onChange={handleChange}
+                    invalid={!!errors.firstName}
                   />
+                  {errors.firstName && (
+                    <small className="text-danger">{errors.firstName}</small>
+                  )}
                 </FormGroup>
               </Col>
 
@@ -135,7 +218,11 @@ export default function DonorForm({ donor, isEdit, goBack }) {
                     name="lastName"
                     value={form.lastName}
                     onChange={handleChange}
+                    invalid={!!errors.lastName}
                   />
+                  {errors.lastName && (
+                    <small className="text-danger">{errors.lastName}</small>
+                  )}
                 </FormGroup>
               </Col>
 
@@ -146,7 +233,26 @@ export default function DonorForm({ donor, isEdit, goBack }) {
                     name="phoneNumber"
                     value={form.phoneNumber}
                     onChange={handleChange}
+                    invalid={!!errors.phoneNumber}
                   />
+                  {errors.phoneNumber && (
+                    <small className="text-danger">{errors.phoneNumber}</small>
+                  )}
+                </FormGroup>
+              </Col>
+
+              <Col md={6}>
+                <FormGroup>
+                  <Label>Email</Label>
+                  <Input
+                    name="email"
+                    value={form.email}
+                    onChange={handleChange}
+                    invalid={!!errors.email}
+                  />
+                  {errors.email && (
+                    <small className="text-danger">{errors.email}</small>
+                  )}
                 </FormGroup>
               </Col>
 
@@ -157,7 +263,13 @@ export default function DonorForm({ donor, isEdit, goBack }) {
                     name="streetAddress"
                     value={form.streetAddress}
                     onChange={handleChange}
+                    invalid={!!errors.streetAddress}
                   />
+                  {errors.streetAddress && (
+                    <small className="text-danger">
+                      {errors.streetAddress}
+                    </small>
+                  )}
                 </FormGroup>
               </Col>
 
@@ -166,13 +278,19 @@ export default function DonorForm({ donor, isEdit, goBack }) {
                 <Input
                   type="radio"
                   checked={domicile === "Indian"}
-                  onChange={() => setDomicile("Indian")}
+                  onChange={() => {
+                    setDomicile("Indian");
+                    setErrors({ ...errors, customAddress: "" });
+                  }}
                 />{" "}
                 Indian &nbsp;
                 <Input
                   type="radio"
                   checked={domicile === "Foreigner"}
-                  onChange={() => setDomicile("Foreigner")}
+                  onChange={() => {
+                    setDomicile("Foreigner");
+                    setErrors({ ...errors, stateId: "", cityId: "" });
+                  }}
                 />{" "}
                 Foreigner
               </Col>
@@ -187,6 +305,7 @@ export default function DonorForm({ donor, isEdit, goBack }) {
                         name="stateId"
                         value={form.stateId}
                         onChange={handleStateChange}
+                        invalid={!!errors.stateId}
                       >
                         <option value="">Select State</option>
                         {states.map((st) => (
@@ -195,6 +314,9 @@ export default function DonorForm({ donor, isEdit, goBack }) {
                           </option>
                         ))}
                       </Input>
+                      {errors.stateId && (
+                        <small className="text-danger">{errors.stateId}</small>
+                      )}
                     </FormGroup>
                   </Col>
 
@@ -206,6 +328,7 @@ export default function DonorForm({ donor, isEdit, goBack }) {
                         name="cityId"
                         value={form.cityId}
                         onChange={handleChange}
+                        invalid={!!errors.cityId}
                       >
                         <option value="">Select City</option>
                         {cities.map((ct) => (
@@ -214,6 +337,9 @@ export default function DonorForm({ donor, isEdit, goBack }) {
                           </option>
                         ))}
                       </Input>
+                      {errors.cityId && (
+                        <small className="text-danger">{errors.cityId}</small>
+                      )}
                     </FormGroup>
                   </Col>
                 </>
@@ -225,7 +351,13 @@ export default function DonorForm({ donor, isEdit, goBack }) {
                       name="customAddress"
                       value={form.customAddress}
                       onChange={handleChange}
+                      invalid={!!errors.customAddress}
                     />
+                    {errors.customAddress && (
+                      <small className="text-danger">
+                        {errors.customAddress}
+                      </small>
+                    )}
                   </FormGroup>
                 </Col>
               )}
@@ -238,6 +370,7 @@ export default function DonorForm({ donor, isEdit, goBack }) {
                     name="idProofType"
                     value={form.idProofType}
                     onChange={handleChange}
+                    invalid={!!errors.idProofType}
                   >
                     <option value="">Select</option>
                     <option value="ADHAAR">Aadhaar</option>
@@ -246,6 +379,9 @@ export default function DonorForm({ donor, isEdit, goBack }) {
                     <option value="VOTER_ID">Voter ID</option>
                     <option value="PAN_CARD">PAN Card</option>
                   </Input>
+                  {errors.idProofType && (
+                    <small className="text-danger">{errors.idProofType}</small>
+                  )}
                 </FormGroup>
               </Col>
 
@@ -256,12 +392,17 @@ export default function DonorForm({ donor, isEdit, goBack }) {
                     name="idProofNumber"
                     value={form.idProofNumber}
                     onChange={handleChange}
+                    invalid={!!errors.idProofNumber}
                   />
+                  {errors.idProofNumber && (
+                    <small className="text-danger">
+                      {errors.idProofNumber}
+                    </small>
+                  )}
                 </FormGroup>
               </Col>
             </Row>
 
-            {/* Buttons */}
             <div className="d-flex justify-content-end mt-3">
               <Button
                 color="secondary"
