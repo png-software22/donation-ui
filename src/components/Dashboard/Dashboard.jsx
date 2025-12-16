@@ -4,6 +4,8 @@ import DonorForm from "./DonorForm";
 import "./Dashboard.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import DonationReport from "./Reports/DonationReport";
+
 import {
   Container,
   Row,
@@ -92,7 +94,8 @@ export default function Dashboard() {
         {menu === "donations" && <DonorFlow />}
         {menu === "add-donation" && <DonorForm />}
         {menu === "expenses" && <h1>Expenses</h1>}
-        {menu === "reports" && <h1>Reports</h1>}
+        {menu === "reports" && <DonationReport />}
+
       </div>
       <ToastContainer position="top-right" autoClose={2000} />
     </div>
