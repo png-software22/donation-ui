@@ -1,5 +1,15 @@
 import React, { useState } from "react";
-import { Button, Form, FormGroup, Label, Input, Col, Row } from "reactstrap";
+import {
+  Button,
+  Form,
+  FormGroup,
+  Label,
+  Input,
+  Col,
+  Row,
+  InputGroup,
+  InputGroupText,
+} from "reactstrap";
 import api from "../../../api/api";
 import Loader from "../../../Loader/Loader";
 import { toast, ToastContainer } from "react-toastify";
@@ -63,11 +73,7 @@ const AddDonationForm = ({ donorDetails, goBack }) => {
 
   const handleSubmit = () => {
     if (!validateForm()) {
-      if (!toastLock) {
-        toast.error("Please fix the errors!");
-        toastLock = true;
-        setTimeout(() => (toastLock = false), 700);
-      }
+      toast.error("Please fix the errors!");
       return;
     }
 
@@ -75,7 +81,6 @@ const AddDonationForm = ({ donorDetails, goBack }) => {
 
     setLoading(true);
 
-    
     const formatDateToDDMMYYYY = (isoDate) => {
       if (!isoDate) return "";
       const [yyyy, mm, dd] = isoDate.split("-");
@@ -96,16 +101,25 @@ const AddDonationForm = ({ donorDetails, goBack }) => {
       donorCityId: donorDetails.cityId,
     };
 
-
     api
       .post("/donations", finalDonation)
-      .then(() => {
-        if (!toastLock) {
-          toast.success("Donation Added Successfully");
-          toastLock = true;
-          setTimeout(() => (toastLock = false), 700);
-        }
+      .then(async (res) => {
+        toast.success("Donation Added Successfully");
 
+        const pdf = await api.get(
+          "/donations/printReceipt/" + res.data.data.donationSerialNumber,
+          {
+            responseType: "arraybuffer",
+          }
+        );
+        const url = window.URL.createObjectURL(new Blob([pdf.data]));
+        const a = document.createElement("a");
+        // debugger;
+        a.href = url;
+        a.download = res.data.data.donationSerialNumber + ".pdf";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
         setTimeout(() => {
           goBack(); // smooth exit after toast
         }, 400);
@@ -190,15 +204,9 @@ const AddDonationForm = ({ donorDetails, goBack }) => {
               <Label>
                 Amount <span className="required-star">*</span>
               </Label>
-
-              <div
-                className={`amount-wrapper ${
-                  errors.amount ? "input-error" : ""
-                }`}
-              >
-                <span className="rupee">₹</span>
-
-                <input
+              <InputGroup>
+                <InputGroupText>₹</InputGroupText>
+                <Input
                   type="number"
                   name="amount"
                   value={donation.amount}
@@ -206,7 +214,7 @@ const AddDonationForm = ({ donorDetails, goBack }) => {
                   placeholder="Enter amount"
                   className="amount-field"
                 />
-              </div>
+              </InputGroup>
 
               {errors.amount && <p className="error-text">{errors.amount}</p>}
             </FormGroup>

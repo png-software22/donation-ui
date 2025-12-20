@@ -86,11 +86,7 @@ export default function DonationReport() {
       })
       .then((res) => setRows(res.data.data || []))
       .catch(() => {
-        if (!toastLock) {
-          toast.error("Failed to load report");
-          toastLock = true;
-          setTimeout(() => (toastLock = false), 1000);
-        }
+        toast.error("Failed to load report");
       })
       .finally(() => setLoading(false));
   };
@@ -128,8 +124,7 @@ export default function DonationReport() {
   const columns = [
     {
       name: "Donation Date",
-      selector: (row) =>
-        moment(row.donationDate).format("DD/MM/YYYY hh:mm A"),
+      selector: (row) => moment(row.donationDate).format("DD/MM/YYYY hh:mm A"),
       sortable: true,
       width: "190px",
     },
@@ -147,7 +142,9 @@ export default function DonationReport() {
     {
       name: "Address",
       selector: (row) =>
-        `${row.donorStreetAddress || ""}, ${row?.city?.name || ""}, ${row?.state?.name || ""}`,
+        `${row.donorStreetAddress || ""}, ${row?.city?.name || ""}, ${
+          row?.state?.name || ""
+        }`,
       wrap: true,
       width: "320px",
     },
@@ -176,9 +173,7 @@ export default function DonationReport() {
           <input
             type="date"
             value={filters.from}
-            onChange={(e) =>
-              setFilters({ ...filters, from: e.target.value })
-            }
+            onChange={(e) => setFilters({ ...filters, from: e.target.value })}
           />
         </div>
 
@@ -187,9 +182,7 @@ export default function DonationReport() {
           <input
             type="date"
             value={filters.to}
-            onChange={(e) =>
-              setFilters({ ...filters, to: e.target.value })
-            }
+            onChange={(e) => setFilters({ ...filters, to: e.target.value })}
           />
         </div>
 
@@ -197,9 +190,7 @@ export default function DonationReport() {
           <label>Method</label>
           <select
             value={filters.method}
-            onChange={(e) =>
-              setFilters({ ...filters, method: e.target.value })
-            }
+            onChange={(e) => setFilters({ ...filters, method: e.target.value })}
           >
             <option value="">All</option>
             <option value="CASH">Cash</option>
@@ -235,9 +226,7 @@ export default function DonationReport() {
           <select
             value={filters.cityId}
             disabled={!filters.stateId}
-            onChange={(e) =>
-              setFilters({ ...filters, cityId: e.target.value })
-            }
+            onChange={(e) => setFilters({ ...filters, cityId: e.target.value })}
           >
             <option value="">All</option>
             {cities.map((c) => (

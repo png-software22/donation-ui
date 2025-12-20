@@ -14,8 +14,10 @@ import {
 import api from "../../api/api";
 import Loader from "../../Loader/Loader";
 import { toast } from "react-toastify";
+import AddDonationForm from "./donorFlow/addDonationForm";
 
 export default function DonorForm({ donor, isEdit, goBack }) {
+  const [createdDonor, setCreateDonor] = useState(null);
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -36,7 +38,7 @@ export default function DonorForm({ donor, isEdit, goBack }) {
   const [errors, setErrors] = useState({});
 
   // -------------------------------------------------------------------
-  // LIVE VALIDATION (NEW)
+  // VALIDATION
   // -------------------------------------------------------------------
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -99,8 +101,7 @@ export default function DonorForm({ donor, isEdit, goBack }) {
         break;
 
       case "idProofNumber":
-        if (!value.trim())
-          newErrors.idProofNumber = "ID proof number required";
+        if (!value.trim()) newErrors.idProofNumber = "ID proof number required";
         else newErrors.idProofNumber = "";
         break;
 
@@ -140,8 +141,7 @@ export default function DonorForm({ donor, isEdit, goBack }) {
       e.phoneNumber = "Phone must be 10 digits";
 
     if (!form.email.trim()) e.email = "Email is required";
-    else if (!emailRegex.test(form.email))
-      e.email = "Invalid email format";
+    else if (!emailRegex.test(form.email)) e.email = "Invalid email format";
 
     if (!form.streetAddress.trim())
       e.streetAddress = "Street address is required";
@@ -243,10 +243,16 @@ export default function DonorForm({ donor, isEdit, goBack }) {
       : api.post(`/donors`, sendData);
 
     apiCall
-      .then(() => {
-        toast.success(
-          isEdit ? "Donor Updated Successfully" : "Donor Created Successfully"
-        );
+      .then((res) => {
+        if (isEdit) {
+          toast.success("Donor Updated Successfully");
+        } else {
+          toast.success("Donor Created Successfully");
+          // redirect to donation form
+          console.log('res us', res)
+          setCreateDonor(res.data);
+        }
+
         resetForm();
       })
       .catch((err) => {
@@ -261,6 +267,9 @@ export default function DonorForm({ donor, isEdit, goBack }) {
   // -------------------------------------------------------------------
   // UI
   // -------------------------------------------------------------------
+  if(createdDonor) {
+    return <AddDonationForm donorDetails={createdDonor} goBack={() => window.location.pathname = "/dashboard"} />
+  }
   return (
     <div className="mt-4 px-4">
       {loading && <Loader />}
