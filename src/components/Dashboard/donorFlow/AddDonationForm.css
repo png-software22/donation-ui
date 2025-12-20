@@ -1,35 +1,37 @@
-/* 🔴 Red border when error */
-.input-error {
+/* error border */
+.input-error .form-control {
   border: 1px solid red !important;
   box-shadow: 0 0 3px rgba(255, 0, 0, 0.4);
 }
 
-/* ⚠ Error text styling */
+/* error text */
 .error-text {
   color: red;
   font-size: 13px;
-  margin-top: 3px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
+  margin-top: 4px;
 }
 
-/* ⚠ icon before text */
-.error-text::before {
-  content: "⚠️";
-  font-size: 15px;
-}
-
-/* For amount box (custom wrapper) */
-.amount-box.input-error {
-  border: 1px solid red !important;
-  box-shadow: 0 0 3px rgba(255, 0, 0, 0.4);
-}
-
-/* Compulsory star */
+/* required star */
 .required-star {
   color: red;
   margin-left: 4px;
-  font-size: 18px;
-  font-weight: bold;
+}
+
+/* AMOUNT FIX */
+.amount-wrapper {
+  position: relative;
+}
+
+.amount-prefix {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #495057;
+  font-size: 16px;
+  pointer-events: none;
+}
+
+.amount-input {
+  padding-left: 30px !important;
 }

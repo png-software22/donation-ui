@@ -1,0 +1,71 @@
+.report-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  background: #fff;
+  padding: 14px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+}
+
+.filter-item {
+  display: flex;
+  flex-direction: column;
+  min-width: 150px;
+}
+
+.filter-item label {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.filter-item input,
+.filter-item select {
+  height: 36px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  padding: 0 10px;
+}
+
+.amount-box {
+  display: flex;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.amount-box select {
+  width: 70px;
+  border: none;
+  border-right: 1px solid #ccc;
+  background: #f3f3f3;
+  font-weight: bold;
+}
+
+.amount-box input {
+  border: none;
+  padding-left: 10px;
+  width: 120px;
+}
+
+.amount-box select:focus,
+.amount-box input:focus {
+  outline: none;
+}
+
+.filter-action {
+  display: flex;
+  align-items: flex-end;
+}
+
+.filter-action button {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 6px;
+  border: none;
+  background: #6c757d;
+  color: #fff;
+  cursor: pointer;
+}

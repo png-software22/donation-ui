@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import DataTable from "react-data-table-component";
 import api from "../../../api/api";
 import Loader from "../../../Loader/Loader";
 import moment from "moment";
 import { toast } from "react-toastify";
 import { fetchStates, fetchCities } from "../../../api/stateService";
+import "./DonationReport.css";
+
+let toastLock = false;
 
 export default function DonationReport() {
   const [rows, setRows] = useState([]);
@@ -23,10 +26,12 @@ export default function DonationReport() {
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "";
-    const [year, month, day] = dateString.split("-");
-    return `${day}-${month}-${year}`;
+  const debounceRef = useRef(null);
+
+  const formatDate = (val) => {
+    if (!val) return undefined;
+    const [y, m, d] = val.split("-");
+    return `${d}-${m}-${y}`;
   };
 
   const validateFilters = () => {
@@ -36,21 +41,19 @@ export default function DonationReport() {
     }
 
     if (filters.from && filters.to) {
-      const from = new Date(filters.from);
-      const to = new Date(filters.to);
-      if (from > to) {
+      if (new Date(filters.from) > new Date(filters.to)) {
         toast.error("From date cannot be greater than To date");
         return false;
       }
     }
 
     if (filters.cityId && !filters.stateId) {
-      toast.error("Please select State before selecting City");
+      toast.error("Please select State first");
       return false;
     }
 
     if (filters.amountFilter && !filters.amount) {
-      toast.error("Please enter Amount");
+      toast.error("Please enter amount");
       return false;
     }
 
@@ -73,21 +76,22 @@ export default function DonationReport() {
           stateId: filters.stateId || undefined,
           cityId: filters.cityId || undefined,
           method: filters.method || undefined,
-
-          startDate: filters.from ? formatDate(filters.from) : undefined,
-          endDate: filters.to ? formatDate(filters.to) : undefined,
-
+          startDate: formatDate(filters.from),
+          endDate: formatDate(filters.to),
           amount: filters.amount || undefined,
           amountFilter: filters.amountFilter || undefined,
-
           page: 1,
           pageSize: 500,
         },
       })
-      .then((res) => {
-        setRows(res.data.data);
+      .then((res) => setRows(res.data.data || []))
+      .catch(() => {
+        if (!toastLock) {
+          toast.error("Failed to load report");
+          toastLock = true;
+          setTimeout(() => (toastLock = false), 1000);
+        }
       })
-      .catch(() => toast.error("Failed to load report"))
       .finally(() => setLoading(false));
   };
 
@@ -104,7 +108,9 @@ export default function DonationReport() {
   }, [filters.stateId]);
 
   useEffect(() => {
-    fetchDonations();
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(fetchDonations, 500);
+    return () => clearTimeout(debounceRef.current);
   }, [filters]);
 
   const clearFilters = () => {
@@ -121,48 +127,39 @@ export default function DonationReport() {
 
   const columns = [
     {
-      id: 1,
       name: "Donation Date",
       selector: (row) =>
         moment(row.donationDate).format("DD/MM/YYYY hh:mm A"),
       sortable: true,
-      width: "200px",
+      width: "190px",
     },
     {
       name: "Donor Name",
       selector: (row) =>
-        `${row.donorFirstName || ""} ${row.donorLastName || ""}`,
-      sortable: true,
+        `${row.donorFirstName || "-"} ${row.donorLastName || ""}`,
       width: "180px",
     },
     {
       name: "Mobile",
-      selector: (row) => row?.donorPhoneNumber || "—",
-      width: "130px",
+      selector: (row) => row.donorPhoneNumber || "-",
+      width: "140px",
     },
     {
       name: "Address",
       selector: (row) =>
-        `${row.donorStreetAddress || ""}, CityID:${row.donorCityId}, StateID:${row.donorStateId}`,
+        `${row.donorStreetAddress || ""}, ${row?.city?.name || ""}, ${row?.state?.name || ""}`,
       wrap: true,
-      width: "350px",
+      width: "320px",
     },
     {
       name: "Method",
-      selector: (row) => row.method || "—",
-      sortable: true,
+      selector: (row) => row.method,
       width: "120px",
     },
     {
       name: "Amount (₹)",
-      selector: (row) => row.amount || 0,
-      sortable: true,
-      width: "140px",
-    },
-    {
-      name: "Bank",
-      selector: () => "IndusInd Bank",
-      width: "150px",
+      selector: (row) => row.amount,
+      width: "130px",
     },
   ];
 
@@ -172,117 +169,122 @@ export default function DonationReport() {
 
       <h2 className="fw-bold mb-3">Donation Reports</h2>
 
-      {/* FILTERS SECTION */}
-      <div
-        className="d-flex align-items-center mb-3"
-        style={{ gap: "10px", flexWrap: "wrap" }}
-      >
-        {/* DATE FROM */}
-        <input
-          type="date"
-          className="form-control"
-          style={{ width: 160 }}
-          value={filters.from}
-          onChange={(e) => setFilters({ ...filters, from: e.target.value })}
-        />
+      {/* FILTER BAR */}
+      <div className="report-filters">
+        <div className="filter-item">
+          <label>From Date</label>
+          <input
+            type="date"
+            value={filters.from}
+            onChange={(e) =>
+              setFilters({ ...filters, from: e.target.value })
+            }
+          />
+        </div>
 
-        {/* DATE TO */}
-        <input
-          type="date"
-          className="form-control"
-          style={{ width: 160 }}
-          value={filters.to}
-          onChange={(e) => setFilters({ ...filters, to: e.target.value })}
-        />
+        <div className="filter-item">
+          <label>To Date</label>
+          <input
+            type="date"
+            value={filters.to}
+            onChange={(e) =>
+              setFilters({ ...filters, to: e.target.value })
+            }
+          />
+        </div>
 
-        {/* METHOD */}
-        <select
-          className="form-select"
-          style={{ width: 160 }}
-          value={filters.method}
-          onChange={(e) => setFilters({ ...filters, method: e.target.value })}
-        >
-          <option value="">Method</option>
-          <option value="CASH">Cash</option>
-          <option value="CHEQUE">Cheque</option>
-          <option value="ONLINE">Online</option>
-          <option value="UPI">UPI</option>
-        </select>
+        <div className="filter-item">
+          <label>Method</label>
+          <select
+            value={filters.method}
+            onChange={(e) =>
+              setFilters({ ...filters, method: e.target.value })
+            }
+          >
+            <option value="">All</option>
+            <option value="CASH">Cash</option>
+            <option value="ONLINE">Online</option>
+            <option value="CHEQUE">Cheque</option>
+            <option value="UPI">UPI</option>
+          </select>
+        </div>
 
-        {/* STATE (DYNAMIC) */}
-        <select
-          className="form-select"
-          style={{ width: 160 }}
-          value={filters.stateId}
-          onChange={(e) =>
-            setFilters({
-              ...filters,
-              stateId: e.target.value,
-              cityId: "",
-            })
-          }
-        >
-          <option value="">State</option>
-          {states.map((st) => (
-            <option key={st.id} value={st.id}>
-              {st.name}
-            </option>
-          ))}
-        </select>
+        <div className="filter-item">
+          <label>State</label>
+          <select
+            value={filters.stateId}
+            onChange={(e) =>
+              setFilters({
+                ...filters,
+                stateId: e.target.value,
+                cityId: "",
+              })
+            }
+          >
+            <option value="">All</option>
+            {states.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
-        {/* CITY (DYNAMIC) */}
-        <select
-          className="form-select"
-          style={{ width: 160 }}
-          value={filters.cityId}
-          onChange={(e) => setFilters({ ...filters, cityId: e.target.value })}
-          disabled={!filters.stateId}
-        >
-          <option value="">City</option>
-          {cities.map((ct) => (
-            <option key={ct.id} value={ct.id}>
-              {ct.name}
-            </option>
-          ))}
-        </select>
+        <div className="filter-item">
+          <label>City</label>
+          <select
+            value={filters.cityId}
+            disabled={!filters.stateId}
+            onChange={(e) =>
+              setFilters({ ...filters, cityId: e.target.value })
+            }
+          >
+            <option value="">All</option>
+            {cities.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
-        {/* AMOUNT */}
-        <input
-          type="number"
-          placeholder="Amount"
-          className="form-control"
-          style={{ width: 150 }}
-          value={filters.amount}
-          onChange={(e) => setFilters({ ...filters, amount: e.target.value })}
-        />
+        {/* 🔥 SINGLE AMOUNT BOX */}
+        <div className="filter-item">
+          <label>Amount</label>
+          <div className="amount-box">
+            <select
+              value={filters.amountFilter}
+              onChange={(e) =>
+                setFilters({ ...filters, amountFilter: e.target.value })
+              }
+            >
+              <option value="">Select</option>
+              <option value="lt">&lt;</option>
+              <option value="gt">&gt;</option>
+              <option value="eq">=</option>
+            </select>
 
-        {/* AMOUNT FILTER */}
-        <select
-          className="form-select"
-          style={{ width: 150 }}
-          value={filters.amountFilter}
-          onChange={(e) =>
-            setFilters({ ...filters, amountFilter: e.target.value })
-          }
-        >
-          <option value="">Amount Filter</option>
-          <option value="1">Less Than</option>
-          <option value="2">Greater Than</option>
-          <option value="3">Equal To</option>
-        </select>
+            <input
+              type="number"
+              placeholder="Enter amount"
+              value={filters.amount}
+              onChange={(e) =>
+                setFilters({ ...filters, amount: e.target.value })
+              }
+            />
+          </div>
+        </div>
 
-        <button className="btn btn-secondary" onClick={clearFilters}>
-          Clear Filters
-        </button>
+        <div className="filter-action">
+          <button onClick={clearFilters}>Clear</button>
+        </div>
       </div>
 
-      {/* DATA TABLE */}
       <DataTable
         columns={columns}
         data={rows}
         pagination
         highlightOnHover
-        defaultSortFieldId={1}
         defaultSortAsc={false}
       />
     </div>
