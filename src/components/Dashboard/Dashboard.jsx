@@ -5,6 +5,7 @@ import "./Dashboard.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import DonationReport from "./Reports/DonationReport";
+import AddExpense from "../Dashboard/Expenses/AddExpense";
 
 import {
   Container,
@@ -25,7 +26,6 @@ export default function Dashboard() {
       <Sidebar onMenuSelect={setMenu} activeMenu={menu} />
 
       <div className="content-area">
-        {/* TOP TITLE BAR */}
         <div className="topbar">
           <h3>{menu.charAt(0).toUpperCase() + menu.slice(1)}</h3>
 
@@ -35,7 +35,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* MAIN CONTENT */}
         {menu === "dashboard" && (
           <Container fluid>
             <Row>
@@ -93,9 +92,8 @@ export default function Dashboard() {
 
         {menu === "donations" && <DonorFlow />}
         {menu === "add-donation" && <DonorForm />}
-        {menu === "expenses" && <h1>Expenses</h1>}
+        {menu === "expenses" && <AddExpense/>}
         {menu === "reports" && <DonationReport />}
-
       </div>
       <ToastContainer position="top-right" autoClose={2000} />
     </div>

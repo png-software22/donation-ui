@@ -1,6 +1,6 @@
 .sidebar {
   height: 100vh;
-  background-color: #4B49AC;
+  background-color: #4b49ac;
   color: white;
   position: fixed;
   display: flex;
@@ -18,7 +18,6 @@
   width: 80px;
 }
 
-/* HEADER */
 .sidebar-header {
   display: flex;
   justify-content: space-between;
@@ -38,7 +37,6 @@
   cursor: pointer;
 }
 
-/* MENU */
 .menu-container {
   padding-left: 10px;
   flex-grow: 1;
@@ -63,7 +61,7 @@
 }
 
 .menu-item.active {
-  background-color: #6C63FF;
+  background-color: #6c63ff;
   font-weight: 600;
 }
 
@@ -75,11 +73,10 @@
   white-space: nowrap;
 }
 
-/* TOOLTIP when sidebar is collapsed */
 .tooltip {
   position: absolute;
   left: 90px;
-  background: #6C63FF;
+  background: #6c63ff;
   padding: 6px 10px;
   border-radius: 6px;
   white-space: nowrap;
@@ -93,13 +90,12 @@
   display: block;
 }
 
-/* LOGOUT BUTTON */
 .logout-container {
   padding: 10px;
 }
 
 .logout-btn {
-  background-color: #4B49AC;
+  background-color: #4b49ac;
   padding: 12px 15px;
   border-radius: 8px;
   display: flex;
@@ -112,7 +108,7 @@
 }
 
 .logout-btn:hover {
-  background-color: #3E3B8F;
+  background-color: #3e3b8f;
 }
 
 .sidebar.closed .logout-btn .menu-text {

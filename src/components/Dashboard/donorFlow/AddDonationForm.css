@@ -1,23 +1,19 @@
-/* error border */
 .input-error .form-control {
   border: 1px solid red !important;
   box-shadow: 0 0 3px rgba(255, 0, 0, 0.4);
 }
 
-/* error text */
 .error-text {
   color: red;
   font-size: 13px;
   margin-top: 4px;
 }
 
-/* required star */
 .required-star {
   color: red;
   margin-left: 4px;
 }
 
-/* AMOUNT FIX */
 .amount-wrapper {
   position: relative;
 }

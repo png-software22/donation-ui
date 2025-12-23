@@ -14,10 +14,8 @@ import {
 import api from "../../api/api";
 import Loader from "../../Loader/Loader";
 import { toast } from "react-toastify";
-import AddDonationForm from "./donorFlow/addDonationForm";
 
 export default function DonorForm({ donor, isEdit, goBack }) {
-  const [createdDonor, setCreateDonor] = useState(null);
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -37,9 +35,6 @@ export default function DonorForm({ donor, isEdit, goBack }) {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
-  // -------------------------------------------------------------------
-  // VALIDATION
-  // -------------------------------------------------------------------
   const handleChange = (e) => {
     const { name, value } = e.target;
     let newErrors = { ...errors };
@@ -118,9 +113,6 @@ export default function DonorForm({ donor, isEdit, goBack }) {
     setForm({ ...form, [name]: value });
   };
 
-  // -------------------------------------------------------------------
-  // FINAL VALIDATE FOR SUBMIT
-  // -------------------------------------------------------------------
   const validate = () => {
     let e = {};
 
@@ -163,9 +155,6 @@ export default function DonorForm({ donor, isEdit, goBack }) {
     return Object.keys(e).length === 0;
   };
 
-  // -------------------------------------------------------------------
-  // RESET FORM
-  // -------------------------------------------------------------------
   const resetForm = () => {
     setForm({
       firstName: "",
@@ -184,9 +173,6 @@ export default function DonorForm({ donor, isEdit, goBack }) {
     setCities([]);
   };
 
-  // -------------------------------------------------------------------
-  // LOAD DATA IN EDIT MODE
-  // -------------------------------------------------------------------
   useEffect(() => {
     if (donor) {
       setForm({
@@ -206,12 +192,10 @@ export default function DonorForm({ donor, isEdit, goBack }) {
     }
   }, [donor]);
 
-  // LOAD STATES
   useEffect(() => {
     fetchStates().then((res) => setStates(res.data));
   }, []);
 
-  // LOAD CITIES WHEN STATE CHANGES
   useEffect(() => {
     if (form.stateId) {
       fetchCities(form.stateId).then((res) => setCities(res.data));
@@ -220,9 +204,6 @@ export default function DonorForm({ donor, isEdit, goBack }) {
     }
   }, [form.stateId]);
 
-  // -------------------------------------------------------------------
-  // SUBMIT FORM
-  // -------------------------------------------------------------------
   const handleSubmit = () => {
     if (!validate()) {
       toast.error("Please correct highlighted fields");
@@ -243,16 +224,10 @@ export default function DonorForm({ donor, isEdit, goBack }) {
       : api.post(`/donors`, sendData);
 
     apiCall
-      .then((res) => {
-        if (isEdit) {
-          toast.success("Donor Updated Successfully");
-        } else {
-          toast.success("Donor Created Successfully");
-          // redirect to donation form
-          console.log('res us', res)
-          setCreateDonor(res.data);
-        }
-
+      .then(() => {
+        toast.success(
+          isEdit ? "Donor Updated Successfully" : "Donor Created Successfully"
+        );
         resetForm();
       })
       .catch((err) => {
@@ -264,12 +239,6 @@ export default function DonorForm({ donor, isEdit, goBack }) {
       });
   };
 
-  // -------------------------------------------------------------------
-  // UI
-  // -------------------------------------------------------------------
-  if(createdDonor) {
-    return <AddDonationForm donorDetails={createdDonor} goBack={() => window.location.pathname = "/dashboard"} />
-  }
   return (
     <div className="mt-4 px-4">
       {loading && <Loader />}
@@ -284,7 +253,6 @@ export default function DonorForm({ donor, isEdit, goBack }) {
             <h5 className="fw-semibold mb-3">Personal Details</h5>
 
             <Row>
-              {/* FIRST NAME */}
               <Col md={6}>
                 <FormGroup>
                   <Label>First Name</Label>
@@ -300,7 +268,6 @@ export default function DonorForm({ donor, isEdit, goBack }) {
                 </FormGroup>
               </Col>
 
-              {/* LAST NAME */}
               <Col md={6}>
                 <FormGroup>
                   <Label>Last Name</Label>
@@ -316,7 +283,6 @@ export default function DonorForm({ donor, isEdit, goBack }) {
                 </FormGroup>
               </Col>
 
-              {/* PHONE */}
               <Col md={6}>
                 <FormGroup>
                   <Label>Phone Number</Label>
@@ -333,7 +299,6 @@ export default function DonorForm({ donor, isEdit, goBack }) {
                 </FormGroup>
               </Col>
 
-              {/* EMAIL */}
               <Col md={6}>
                 <FormGroup>
                   <Label>Email</Label>
@@ -349,7 +314,6 @@ export default function DonorForm({ donor, isEdit, goBack }) {
                 </FormGroup>
               </Col>
 
-              {/* STREET ADDRESS */}
               <Col md={12}>
                 <FormGroup>
                   <Label>Street Address</Label>
@@ -367,7 +331,6 @@ export default function DonorForm({ donor, isEdit, goBack }) {
                 </FormGroup>
               </Col>
 
-              {/* DOMICILE */}
               <Col xs={12} className="my-2">
                 <strong>Donor Domicile:</strong> &nbsp;
                 <Input
@@ -392,7 +355,6 @@ export default function DonorForm({ donor, isEdit, goBack }) {
 
               {domicile === "Indian" ? (
                 <>
-                  {/* STATE */}
                   <Col md={4}>
                     <FormGroup>
                       <Label>State</Label>
@@ -416,7 +378,6 @@ export default function DonorForm({ donor, isEdit, goBack }) {
                     </FormGroup>
                   </Col>
 
-                  {/* CITY */}
                   <Col md={4}>
                     <FormGroup>
                       <Label>City</Label>
@@ -460,7 +421,6 @@ export default function DonorForm({ donor, isEdit, goBack }) {
                 </Col>
               )}
 
-              {/* ID PROOF TYPE */}
               <Col md={6}>
                 <FormGroup>
                   <Label>ID Proof Type</Label>
@@ -484,7 +444,6 @@ export default function DonorForm({ donor, isEdit, goBack }) {
                 </FormGroup>
               </Col>
 
-              {/* ID PROOF NUMBER */}
               <Col md={6}>
                 <FormGroup>
                   <Label>ID Proof Number</Label>
@@ -503,7 +462,6 @@ export default function DonorForm({ donor, isEdit, goBack }) {
               </Col>
             </Row>
 
-            {/* SUBMIT BUTTONS */}
             <div className="d-flex justify-content-end mt-3">
               <Button
                 color="secondary"
