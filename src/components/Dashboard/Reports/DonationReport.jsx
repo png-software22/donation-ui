@@ -3,7 +3,7 @@ import DataTable from "react-data-table-component";
 import api from "../../../api/api";
 import Loader from "../../../Loader/Loader";
 import moment from "moment";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import { fetchStates, fetchCities } from "../../../api/stateService";
 import "./DonationReport.css";
 
@@ -92,12 +92,16 @@ export default function DonationReport() {
   };
 
   useEffect(() => {
-    fetchStates().then((res) => setStates(res.data));
+    fetchStates()
+      .then((res) => setStates(res.data))
+      .catch(() => toast.error("something went wrong"));
   }, []);
 
   useEffect(() => {
     if (filters.stateId) {
-      fetchCities(filters.stateId).then((res) => setCities(res.data));
+      fetchCities(filters.stateId)
+        .then((res) => setCities(res.data))
+        .catch(() => toast.error("something went wrong"));
     } else {
       setCities([]);
     }
@@ -162,6 +166,7 @@ export default function DonationReport() {
 
   return (
     <div className="p-4">
+      <ToastContainer />
       {loading && <Loader />}
 
       <h2 className="fw-bold mb-3">Donation Reports</h2>

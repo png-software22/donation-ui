@@ -35,6 +35,8 @@ export default function Login() {
     } catch (e) {
       if (e.status === 401) {
         toast.error("Invalid user or password");
+      } else {
+        toast.error("something went wrong");
       }
     }
   };

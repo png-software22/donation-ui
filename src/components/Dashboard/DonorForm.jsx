@@ -193,12 +193,20 @@ export default function DonorForm({ donor, isEdit, goBack }) {
   }, [donor]);
 
   useEffect(() => {
-    fetchStates().then((res) => setStates(res.data));
+    fetchStates()
+      .then((res) => setStates(res.data))
+      .catch(() => {
+        toast.error("something went wrong");
+      });
   }, []);
 
   useEffect(() => {
     if (form.stateId) {
-      fetchCities(form.stateId).then((res) => setCities(res.data));
+      fetchCities(form.stateId)
+        .then((res) => setCities(res.data))
+        .catch(() => {
+          toast.error("something went wrong");
+        });
     } else {
       setCities([]);
     }

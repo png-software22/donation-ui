@@ -15,7 +15,6 @@ import Loader from "../../../Loader/Loader";
 import { toast, ToastContainer } from "react-toastify";
 import "./AddDonationForm.css";
 
-
 const AddDonationForm = ({ donorDetails, goBack }) => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
