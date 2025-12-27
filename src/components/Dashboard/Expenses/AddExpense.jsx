@@ -46,12 +46,25 @@ const AddExpense = ({ goBack }) => {
         expenseDescription: expense.expenseDescription,
         expenseAmount: Number(expense.expenseAmount),
       })
-      .then((res) => {
+      .then(async (res) => {
         toast.success("Expense added successfully");
-        goBack?.();
+
+        const pdf = await api.get("/expenses/receipt/" + res.data.id, {
+          responseType: "arraybuffer",
+        });
+        const url = window.URL.createObjectURL(new Blob([pdf.data]));
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "VC00" + res.data.id + ".pdf";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => {
+          goBack?.(); // smooth exit after toast
+        }, 400);
       })
+
       .catch(() => {
-        console.log("error aau");
         toast.error("Something went wrong");
       })
       .finally(() => setLoading(false));
