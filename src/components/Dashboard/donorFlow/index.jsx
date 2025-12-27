@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Input, Table } from "reactstrap";
 import DonorForm from "../DonorForm";
 import { fetchDonors } from "../../../api/stateService";
@@ -7,6 +7,7 @@ import AddDonationForm from "./addDonationForm";
 import Loader from "../../../Loader/Loader";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import DataTable from "react-data-table-component";
 
 const DonorFlow = () => {
   const [donationFlowStep, setDonationFlowStep] = useState("SEARCH_EXISTING");
@@ -14,8 +15,13 @@ const DonorFlow = () => {
   const [donorId, setDonorId] = useState("");
 
   const [donors, setDonors] = useState({ count: 0, data: [] });
+  const [searchedDonor, setSearchedDonor] = useState(false);
   const [selectedDonor, setSelectedDonor] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setSearchedDonor(false);
+  }, [donationFlowStep]);
 
   const validateSearch = () => {
     if (!phone.trim() && !donorId.trim()) {
@@ -52,7 +58,10 @@ const DonorFlow = () => {
         setDonors(res.data);
       })
       .catch(() => toast.error("Failed to load donors"))
-      .finally(() => setLoading(false));
+      .finally(() => {
+        setLoading(false);
+        setSearchedDonor(true);
+      });
   };
 
   const handleEdit = (donor) => {
@@ -93,10 +102,15 @@ const DonorFlow = () => {
     return <DonorForm goBack={handleGoBack} />;
 
   if (donationFlowStep === "ADD_DONATION")
-    return <AddDonationForm donorDetails={selectedDonor} goBack={handleGoBack} />;
+    return (
+      <AddDonationForm donorDetails={selectedDonor} goBack={handleGoBack} />
+    );
 
   return (
-    <div className="d-flex flex-column justify-center align-center" style={{ gap: 10 }}>
+    <div
+      className="d-flex flex-column justify-center align-center"
+      style={{ gap: 10 }}
+    >
       <ToastContainer />
       {loading && <Loader />}
 
@@ -121,6 +135,9 @@ const DonorFlow = () => {
       />
 
       <Button onClick={refreshList}>Search</Button>
+      <Button onClick={() => setDonationFlowStep("CREATE_NEW_DONOR")}>
+        Create a new Donor
+      </Button>
 
       <Table>
         {donors.count ? (
@@ -145,7 +162,10 @@ const DonorFlow = () => {
                   <td>{donorInfo.idProofNumber}</td>
                   <td>
                     <div className="d-flex justify-space-between gap-10">
-                      <Button color="primary" onClick={() => handleAddDonation(donorInfo)}>
+                      <Button
+                        color="primary"
+                        onClick={() => handleAddDonation(donorInfo)}
+                      >
                         Add Donation
                       </Button>
                       <Button size="sm" onClick={() => handleEdit(donorInfo)}>
@@ -158,12 +178,19 @@ const DonorFlow = () => {
             </tbody>
           </>
         ) : (
-          <>
-            No Donors Exists{" "}
-            <Button onClick={() => setDonationFlowStep("CREATE_NEW_DONOR")}>
-              Create a new Donor
-            </Button>
-          </>
+          <DataTable
+            columns={[]}
+            data={[]}
+            pagination
+            loading={loading}
+            highlightOnHover
+            defaultSortAsc={false}
+            noDataComponent={
+              searchedDonor
+                ? "No Records Found"
+                : "Search to get a list of donors"
+            }
+          />
         )}
       </Table>
     </div>

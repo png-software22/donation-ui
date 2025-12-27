@@ -15,7 +15,6 @@ import Loader from "../../../Loader/Loader";
 import { toast, ToastContainer } from "react-toastify";
 import "./AddDonationForm.css";
 
-let toastLock = false; // prevents duplicate toast
 
 const AddDonationForm = ({ donorDetails, goBack }) => {
   const [loading, setLoading] = useState(false);

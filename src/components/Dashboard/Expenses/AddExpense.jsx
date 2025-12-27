@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Form, FormGroup, Label, Input, Button, Row, Col } from "reactstrap";
+import { Form, Label, Input, Button, Row, Col } from "reactstrap";
 import api from "../../../api/api";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 
 const AddExpense = ({ goBack }) => {
   const now = new Date();
@@ -46,11 +46,12 @@ const AddExpense = ({ goBack }) => {
         expenseDescription: expense.expenseDescription,
         expenseAmount: Number(expense.expenseAmount),
       })
-      .then(() => {
+      .then((res) => {
         toast.success("Expense added successfully");
-        goBack && goBack();
+        goBack?.();
       })
       .catch(() => {
+        console.log("error aau");
         toast.error("Something went wrong");
       })
       .finally(() => setLoading(false));
@@ -59,7 +60,7 @@ const AddExpense = ({ goBack }) => {
   return (
     <div className="mt-4 px-4">
       <h4 className="mb-3">Expense Voucher</h4>
-
+      <ToastContainer />
       <Form>
         <Row className="mb-3">
           <Col md={4}>

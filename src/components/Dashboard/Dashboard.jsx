@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Sidebar from "./Sidebar";
 import DonorForm from "./DonorForm";
 import "./Dashboard.css";
@@ -17,9 +17,14 @@ import {
   Button,
 } from "reactstrap";
 import DonorFlow from "./donorFlow";
+import { useMatch } from "react-router-dom";
+import { USER_KEY } from "../../constant";
 
 export default function Dashboard() {
   const [menu, setMenu] = useState("dashboard");
+  const userName = useMemo(() => {
+    return JSON.parse(localStorage.getItem(USER_KEY) ?? "{}").name;
+  }, []);
 
   return (
     <div className="layout-wrapper">
@@ -31,7 +36,7 @@ export default function Dashboard() {
 
           <div className="profile-box">
             <img src="https://i.pravatar.cc/120" alt="user" />
-            <span>Admin Kumar ▼</span>
+            <span>{userName}</span>
           </div>
         </div>
 
@@ -92,7 +97,7 @@ export default function Dashboard() {
 
         {menu === "donations" && <DonorFlow />}
         {menu === "add-donation" && <DonorForm />}
-        {menu === "expenses" && <AddExpense/>}
+        {menu === "expenses" && <AddExpense />}
         {menu === "reports" && <DonationReport />}
       </div>
       <ToastContainer position="top-right" autoClose={2000} />

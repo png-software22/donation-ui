@@ -13,7 +13,7 @@ import {
 } from "reactstrap";
 import api from "../../api/api";
 import Loader from "../../Loader/Loader";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 
 export default function DonorForm({ donor, isEdit, goBack }) {
   const [form, setForm] = useState({
@@ -242,6 +242,7 @@ export default function DonorForm({ donor, isEdit, goBack }) {
   return (
     <div className="mt-4 px-4">
       {loading && <Loader />}
+      <ToastContainer />
 
       <h2 className="fw-bold mb-3">
         {isEdit ? "Edit Donor" : "Add New Donor"}
