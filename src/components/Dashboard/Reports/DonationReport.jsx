@@ -6,6 +6,7 @@ import moment from "moment";
 import { toast, ToastContainer } from "react-toastify";
 import { fetchStates, fetchCities } from "../../../api/stateService";
 import "./DonationReport.css";
+import { Button } from "reactstrap";
 
 let toastLock = false;
 
@@ -125,12 +126,69 @@ export default function DonationReport() {
     });
   };
 
+  const exportToExcel = async () => {
+    if (!validateFilters()) return;
+
+    try {
+      setLoading(true);
+      const response = await api.get("/donations/export/excel", {
+        params: {
+          stateId: filters.stateId || undefined,
+          cityId: filters.cityId || undefined,
+          method: filters.method || undefined,
+          startDate: formatDate(filters.from),
+          endDate: formatDate(filters.to),
+          amount: filters.amount || undefined,
+          amountFilter: filters.amountFilter || undefined,
+        },
+        responseType: "arraybuffer",
+      });
+
+      const blob = new Blob([response.data], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `donation-report-${moment().format("YYYY-MM-DD")}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      toast.success("Excel exported successfully");
+    } catch (error) {
+      toast.error("Failed to export excel");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVoidDonation = async (serialNumber) => {
+    if (!window.confirm("Are you sure you want to void this donation?")) {
+      return;
+    }
+
+    try {
+      await api.patch(`/donations/void/${serialNumber}`);
+      toast.success("Donation voided successfully");
+      fetchDonations();
+    } catch (error) {
+      toast.error("Failed to void donation");
+    }
+  };
+
   const columns = [
     {
       name: "Donation Date",
-      selector: (row) => moment(row.donationDate).format("DD/MM/YYYY hh:mm A"),
+      selector: (row) => moment(row.createdAt).format("DD/MM/YYYY hh:mm A"),
       sortable: true,
       width: "190px",
+    },
+    {
+      name: "Reference ID",
+      selector: (row) => row.donationSerialNumber || "-",
+      sortable: true,
+      width: "150px",
     },
     {
       name: "Donor Name",
@@ -160,7 +218,43 @@ export default function DonationReport() {
     {
       name: "Amount (₹)",
       selector: (row) => row.amount,
-      width: "130px",
+      width: "100px",
+    },
+    {
+      name: "action",
+      selector: (row) => (
+        <div style={{ display: "flex", gap: "8px" }}>
+          <Button
+            color="primary"
+            size="sm"
+            onClick={async () => {
+              const pdf = await api.get(
+                "/donations/printReceipt/" + row.donationSerialNumber,
+                {
+                  responseType: "arraybuffer",
+                }
+              );
+              const url = window.URL.createObjectURL(new Blob([pdf.data]));
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = row.donationSerialNumber + ".pdf";
+              document.body.appendChild(a);
+              a.click();
+              a.remove();
+            }}
+          >
+            Print
+          </Button>
+          <Button
+            color="danger"
+            size="sm"
+            onClick={() => handleVoidDonation(row.donationSerialNumber)}
+          >
+            Void
+          </Button>
+        </div>
+      ),
+      width: "180px",
     },
   ];
 
@@ -242,7 +336,6 @@ export default function DonationReport() {
           </select>
         </div>
 
-        {/* 🔥 SINGLE AMOUNT BOX */}
         <div className="filter-item">
           <label>Amount</label>
           <div className="amount-box">
@@ -273,6 +366,10 @@ export default function DonationReport() {
           <button onClick={clearFilters}>Clear</button>
         </div>
       </div>
+
+      <Button color="success" onClick={exportToExcel} className="mb-3">
+        Export to Excel
+      </Button>
 
       <DataTable
         columns={columns}
