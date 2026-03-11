@@ -7,6 +7,7 @@ import { toast, ToastContainer } from "react-toastify";
 import { fetchStates, fetchCities } from "../../../api/stateService";
 import "./DonationReport.css";
 import { Button } from "reactstrap";
+import { generatePDF } from "../../../helper.tsx";
 
 let toastLock = false;
 
@@ -228,19 +229,25 @@ export default function DonationReport() {
             color="primary"
             size="sm"
             onClick={async () => {
-              const pdf = await api.get(
-                "/donations/printReceipt/" + row.donationSerialNumber,
-                {
-                  responseType: "arraybuffer",
+              try {
+                const response = await api.get(
+                  "/donations/printReceipt/" + row.donationSerialNumber,
+                  {
+                    responseType: "text/html",
+                  }
+                );
+
+                if (response.data) {
+                  generatePDF(
+                    response.data,
+                    row.donationSerialNumber + ".pdf"
+                  );
+                } else {
+                  toast.error("Failed to generate PDF: Invalid response data");
                 }
-              );
-              const url = window.URL.createObjectURL(new Blob([pdf.data]));
-              const a = document.createElement("a");
-              a.href = url;
-              a.download = row.donationSerialNumber + ".pdf";
-              document.body.appendChild(a);
-              a.click();
-              a.remove();
+              } catch (error) {
+                toast.error("Failed to generate PDF");
+              }
             }}
           >
             Print

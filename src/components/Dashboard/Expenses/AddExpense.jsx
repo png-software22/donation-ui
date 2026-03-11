@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Form, Label, Input, Button, Row, Col } from "reactstrap";
 import api from "../../../api/api";
 import { toast, ToastContainer } from "react-toastify";
+import { generatePDF } from "../../../helper.tsx";
 
 const AddExpense = ({ goBack }) => {
   const now = new Date();
@@ -52,13 +53,15 @@ const AddExpense = ({ goBack }) => {
         const pdf = await api.get("/expenses/receipt/" + res.data.id, {
           responseType: "arraybuffer",
         });
-        const url = window.URL.createObjectURL(new Blob([pdf.data]));
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "VC00" + res.data.id + ".pdf";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
+        generatePDF(pdf.data.html, "VC00" + res.data.id + ".pdf");
+
+        // const url = window.URL.createObjectURL(new Blob([pdf.data]));
+        // const a = document.createElement("a");
+        // a.href = url;
+        // a.download = "VC00" + res.data.id + ".pdf";
+        // document.body.appendChild(a);
+        // a.click();
+        // a.remove();
         setTimeout(() => {
           goBack?.(); // smooth exit after toast
         }, 400);

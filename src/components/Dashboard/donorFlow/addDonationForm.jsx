@@ -14,6 +14,7 @@ import api from "../../../api/api";
 import Loader from "../../../Loader/Loader";
 import { toast, ToastContainer } from "react-toastify";
 import "./AddDonationForm.css";
+import { generatePDF } from "../../../helper.tsx";
 
 const AddDonationForm = ({ donorDetails, goBack }) => {
   const [loading, setLoading] = useState(false);
@@ -107,17 +108,19 @@ const AddDonationForm = ({ donorDetails, goBack }) => {
         const pdf = await api.get(
           "/donations/printReceipt/" + res.data.data.donationSerialNumber,
           {
-            responseType: "arraybuffer",
+            responseType: "text/html",
           }
         );
-        const url = window.URL.createObjectURL(new Blob([pdf.data]));
-        const a = document.createElement("a");
-        // debugger;
-        a.href = url;
-        a.download = res.data.data.donationSerialNumber + ".pdf";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
+        console.log('pdf', pdf)
+        generatePDF(pdf.data.html, res.data.data.donationSerialNumber + ".pdf");
+        // const url = window.URL.createObjectURL(new Blob([pdf.data]));
+        // const a = document.createElement("a");
+        // // debugger;
+        // a.href = url;
+        // a.download = res.data.data.donationSerialNumber + ".pdf";
+        // document.body.appendChild(a);
+        // a.click();
+        // a.remove();
         setTimeout(() => {
           goBack(); // smooth exit after toast
         }, 400);
