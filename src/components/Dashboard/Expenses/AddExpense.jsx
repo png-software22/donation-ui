@@ -51,9 +51,9 @@ const AddExpense = ({ goBack }) => {
         toast.success("Expense added successfully");
 
         const pdf = await api.get("/expenses/receipt/" + res.data.id, {
-          responseType: "arraybuffer",
+          responseType: "text/html",
         });
-        generatePDF(pdf.data.html, "VC00" + res.data.id + ".pdf");
+        generatePDF(pdf.data, "VC00" + res.data.id + ".pdf");
 
         // const url = window.URL.createObjectURL(new Blob([pdf.data]));
         // const a = document.createElement("a");

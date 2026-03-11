@@ -112,7 +112,7 @@ const AddDonationForm = ({ donorDetails, goBack }) => {
           }
         );
         console.log('pdf', pdf)
-        generatePDF(pdf.data.html, res.data.data.donationSerialNumber + ".pdf");
+        generatePDF(pdf.data, res.data.data.donationSerialNumber + ".pdf");
         // const url = window.URL.createObjectURL(new Blob([pdf.data]));
         // const a = document.createElement("a");
         // // debugger;
