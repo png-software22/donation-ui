@@ -10,6 +10,7 @@ import {
   Label,
   Input,
   Button,
+  Spinner,
 } from "reactstrap";
 import "../../styles/App.css";
 import api from "../../api/api";
@@ -20,17 +21,18 @@ import { USER_KEY } from "../../constant";
 export default function Login() {
   const [UserId, setUserId] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); // Start loader
     try {
       const user = await api.post("/users/login", {
         userName: UserId,
         password,
       });
       localStorage.setItem(USER_KEY, JSON.stringify(user.data));
-
       navigate("/dashboard"); // Redirect to dashboard
     } catch (e) {
       if (e.status === 401) {
@@ -38,6 +40,8 @@ export default function Login() {
       } else {
         toast.error("something went wrong");
       }
+    } finally {
+      setLoading(false); // Stop loader
     }
   };
 
@@ -54,6 +58,12 @@ export default function Login() {
             <CardBody>
               <h2 className="primary-color mb-4">Sign In</h2>
               <Form onSubmit={handleSubmit}>
+                {/* Show loader if loading is true */}
+                {loading && (
+                  <div className="text-center mb-3">
+                    <Spinner color="primary" />
+                  </div>
+                )}
                 <FormGroup>
                   <Label for="UserId">User ID</Label>
                   <Input
@@ -78,8 +88,9 @@ export default function Login() {
                   type="submit"
                   className="w-100 bg-primary"
                   style={{ padding: "16px 24px" }}
+                  disabled={loading} // Disable button while loading
                 >
-                  Sign In
+                  {loading ? "Signing In..." : "Sign In"}
                 </Button>
               </Form>
               <div className="mt-2 text-end">
