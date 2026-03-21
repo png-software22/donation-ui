@@ -12,7 +12,7 @@ export default function TitleBar({ title }) {
           className="profile-pic"
           alt="profile"
         />
-        <span className="profile-name">Admin Kumar</span>
+        <span className="profile-name">Bhagwati Bhawan</span>
         <span className="profile-arrow">▼</span>
       </div>
     </div>

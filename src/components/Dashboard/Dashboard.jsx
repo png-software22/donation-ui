@@ -35,8 +35,8 @@ export default function Dashboard() {
           <h3>{menu.charAt(0).toUpperCase() + menu.slice(1)}</h3>
 
           <div className="profile-box">
-            <img src="https://i.pravatar.cc/120" alt="user" />
-            <span>{userName}</span>
+            <img src="shera_wali_mata_rani_ji.png" alt="user" />
+            <span>Bhagwati Bhawan</span>
           </div>
         </div>
 
