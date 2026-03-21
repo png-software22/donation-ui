@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Nav, NavItem } from "reactstrap";
+import { Nav, NavItem, Spinner } from "reactstrap";
 import "./sidebar.css";
 
 import {
@@ -15,6 +15,7 @@ import { USER_KEY } from "../../constant";
 
 export default function Sidebar({ onMenuSelect, activeMenu }) {
   const [open, setOpen] = useState(true);
+  const [loggingOut, setLoggingOut] = useState(false); // New state for logout loading
 
   const menuItems = [
     { key: "dashboard", label: "Dashboard", icon: <FiHome size={18} /> },
@@ -29,8 +30,11 @@ export default function Sidebar({ onMenuSelect, activeMenu }) {
   ];
 
   const handleLogout = () => {
-    localStorage.removeItem(USER_KEY);
-    window.location.href = "/";
+    setLoggingOut(true); // Set loading state
+    setTimeout(() => {
+      localStorage.removeItem(USER_KEY);
+      window.location.href = "/";
+    }, 1000); // Simulate logout delay
   };
 
   return (
@@ -67,10 +71,23 @@ export default function Sidebar({ onMenuSelect, activeMenu }) {
         <div
           className={`logout-btn ${!open ? "center-icon" : ""}`}
           onClick={handleLogout}
+          disabled={loggingOut} // Disable button during logout
         >
-          <FiLogOut size={20} />
-          {open && <span className="menu-text">Logout</span>}
-          {!open && <span className="tooltip">Logout</span>}
+          {loggingOut ? (
+            <Spinner size="sm" color="light" />
+          ) : (
+            <FiLogOut size={20} />
+          )}
+          {open && (
+            <span className="menu-text">
+              {loggingOut ? "Logging out..." : "Logout"}
+            </span>
+          )}
+          {!open && (
+            <span className="tooltip">
+              {loggingOut ? "Logging out..." : "Logout"}
+            </span>
+          )}
         </div>
       </div>
     </div>
