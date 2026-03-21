@@ -34,6 +34,8 @@ export default function DonorForm({ donor, isEdit, goBack }) {
   const [cities, setCities] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [stateLoading, setStateLoading] = useState(false);
+  const [cityLoading, setCityLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -193,20 +195,24 @@ export default function DonorForm({ donor, isEdit, goBack }) {
   }, [donor]);
 
   useEffect(() => {
+    setStateLoading(true);
     fetchStates()
       .then((res) => setStates(res.data))
       .catch(() => {
         toast.error("something went wrong");
-      });
+      })
+      .finally(() => setStateLoading(false));
   }, []);
 
   useEffect(() => {
     if (form.stateId) {
+      setCityLoading(true);
       fetchCities(form.stateId)
         .then((res) => setCities(res.data))
         .catch(() => {
           toast.error("something went wrong");
-        });
+        })
+        .finally(() => setCityLoading(false));
     } else {
       setCities([]);
     }
@@ -270,6 +276,7 @@ export default function DonorForm({ donor, isEdit, goBack }) {
                     value={form.firstName}
                     onChange={handleChange}
                     invalid={!!errors.firstName}
+                    placeholder="Enter first name"
                   />
                   {errors.firstName && (
                     <small className="text-danger">{errors.firstName}</small>
@@ -285,6 +292,7 @@ export default function DonorForm({ donor, isEdit, goBack }) {
                     value={form.lastName}
                     onChange={handleChange}
                     invalid={!!errors.lastName}
+                    placeholder="Enter last name"
                   />
                   {errors.lastName && (
                     <small className="text-danger">{errors.lastName}</small>
@@ -301,6 +309,7 @@ export default function DonorForm({ donor, isEdit, goBack }) {
                     maxLength={10}
                     onChange={handleChange}
                     invalid={!!errors.phoneNumber}
+                    placeholder="Enter 10-digit phone number"
                   />
                   {errors.phoneNumber && (
                     <small className="text-danger">{errors.phoneNumber}</small>
@@ -316,6 +325,7 @@ export default function DonorForm({ donor, isEdit, goBack }) {
                     value={form.email}
                     onChange={handleChange}
                     invalid={!!errors.email}
+                    placeholder="Enter email address"
                   />
                   {errors.email && (
                     <small className="text-danger">{errors.email}</small>
@@ -331,6 +341,7 @@ export default function DonorForm({ donor, isEdit, goBack }) {
                     value={form.streetAddress}
                     onChange={handleChange}
                     invalid={!!errors.streetAddress}
+                    placeholder="Enter street address"
                   />
                   {errors.streetAddress && (
                     <small className="text-danger">
@@ -374,12 +385,15 @@ export default function DonorForm({ donor, isEdit, goBack }) {
                         onChange={handleChange}
                         invalid={!!errors.stateId}
                       >
-                        <option value="">Select State</option>
-                        {states.map((st) => (
-                          <option key={st.id} value={st.id}>
-                            {st.name}
-                          </option>
-                        ))}
+                        <option value="">
+                          {stateLoading ? "loading...." : "Select State"}
+                        </option>
+                        {!stateLoading &&
+                          states.map((st) => (
+                            <option key={st.id} value={st.id}>
+                              {st.name}
+                            </option>
+                          ))}
                       </Input>
                       {errors.stateId && (
                         <small className="text-danger">{errors.stateId}</small>
@@ -395,15 +409,18 @@ export default function DonorForm({ donor, isEdit, goBack }) {
                         name="cityId"
                         value={form.cityId}
                         onChange={handleChange}
-                        disabled={!form.stateId}
+                        disabled={!form.stateId || cityLoading}
                         invalid={!!errors.cityId}
                       >
-                        <option value="">Select City</option>
-                        {cities.map((ct) => (
-                          <option key={ct.id} value={ct.id}>
-                            {ct.name}
-                          </option>
-                        ))}
+                        <option value="">
+                          {cityLoading ? "loading...." : "Select City"}
+                        </option>
+                        {!cityLoading &&
+                          cities.map((ct) => (
+                            <option key={ct.id} value={ct.id}>
+                              {ct.name}
+                            </option>
+                          ))}
                       </Input>
                       {errors.cityId && (
                         <small className="text-danger">{errors.cityId}</small>
@@ -420,6 +437,7 @@ export default function DonorForm({ donor, isEdit, goBack }) {
                       value={form.customAddress}
                       onChange={handleChange}
                       invalid={!!errors.customAddress}
+                      placeholder="Enter full address"
                     />
                     {errors.customAddress && (
                       <small className="text-danger">
@@ -461,6 +479,7 @@ export default function DonorForm({ donor, isEdit, goBack }) {
                     value={form.idProofNumber}
                     onChange={handleChange}
                     invalid={!!errors.idProofNumber}
+                    placeholder="Enter ID proof number"
                   />
                   {errors.idProofNumber && (
                     <small className="text-danger">
