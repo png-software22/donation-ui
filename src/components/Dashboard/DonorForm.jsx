@@ -70,8 +70,7 @@ export default function DonorForm({ donor, isEdit, goBack }) {
         break;
 
       case "email":
-        if (!value.trim()) newErrors.email = "Email is required";
-        else if (!emailRegex.test(value))
+        if (value.trim() && !emailRegex.test(value))
           newErrors.email = "Invalid email format";
         else newErrors.email = "";
         break;
@@ -134,8 +133,8 @@ export default function DonorForm({ donor, isEdit, goBack }) {
     else if (!phoneRegex.test(form.phoneNumber))
       e.phoneNumber = "Phone must be 10 digits";
 
-    if (!form.email.trim()) e.email = "Email is required";
-    else if (!emailRegex.test(form.email)) e.email = "Invalid email format";
+    if (form.email.trim() && !emailRegex.test(form.email))
+      e.email = "Invalid email format";
 
     if (!form.streetAddress.trim())
       e.streetAddress = "Street address is required";
@@ -240,7 +239,7 @@ export default function DonorForm({ donor, isEdit, goBack }) {
     apiCall
       .then(() => {
         toast.success(
-          isEdit ? "Donor Updated Successfully" : "Donor Created Successfully"
+          isEdit ? "Donor Updated Successfully" : "Donor Created Successfully",
         );
         resetForm();
       })
@@ -319,7 +318,9 @@ export default function DonorForm({ donor, isEdit, goBack }) {
 
               <Col md={6}>
                 <FormGroup>
-                  <Label>Email</Label>
+                  <Label>
+                    Email <span className="text-muted">(Optional)</span>
+                  </Label>
                   <Input
                     name="email"
                     value={form.email}
