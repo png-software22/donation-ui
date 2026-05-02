@@ -7,7 +7,7 @@ import { toast, ToastContainer } from "react-toastify";
 import { fetchStates, fetchCities } from "../../../api/stateService";
 import "./DonationReport.css";
 import { Button } from "reactstrap";
-import { generatePDF } from "../../../helper.tsx";
+import { generatePDF, printDocument } from "../../../helper.tsx";
 
 let toastLock = false;
 
@@ -234,23 +234,44 @@ export default function DonationReport() {
                   "/donations/printReceipt/" + row.donationSerialNumber,
                   {
                     responseType: "text/html",
-                  }
+                  },
                 );
 
                 if (response.data) {
-                  generatePDF(
-                    response.data,
-                    row.donationSerialNumber + ".pdf"
-                  );
+                  printDocument(response.data);
                 } else {
-                  toast.error("Failed to generate PDF: Invalid response data");
+                  toast.error("Failed to print: Invalid response data");
                 }
               } catch (error) {
-                toast.error("Failed to generate PDF");
+                toast.error("Failed to print");
               }
             }}
           >
             Print
+          </Button>
+          <Button
+            color="info"
+            size="sm"
+            onClick={async () => {
+              try {
+                const response = await api.get(
+                  "/donations/printReceipt/" + row.donationSerialNumber,
+                  {
+                    responseType: "text/html",
+                  },
+                );
+
+                if (response.data) {
+                  generatePDF(response.data, row.donationSerialNumber + ".pdf");
+                } else {
+                  toast.error("Failed to download PDF: Invalid response data");
+                }
+              } catch (error) {
+                toast.error("Failed to download PDF");
+              }
+            }}
+          >
+            Download
           </Button>
           <Button
             color="danger"
@@ -261,7 +282,7 @@ export default function DonationReport() {
           </Button>
         </div>
       ),
-      width: "180px",
+      // width: "180px",
     },
   ];
 
