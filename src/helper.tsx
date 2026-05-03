@@ -23,24 +23,33 @@ export const generatePDF = (htmlString, filename = Date.now() + ".pdf") => {
 };
 
 export const printDocument = (htmlString) => {
-  // Create temporary container
-  const container = document.createElement("div");
-
-  // Inject HTML string
-  container.innerHTML = htmlString;
-
   // Create a new window for printing
   const printWindow = window.open("", "", "height=600,width=800");
-  printWindow.document.write("<html><head><title>Print</title></head><body>");
-  printWindow.document.write(container.innerHTML);
-  printWindow.document.write("</body></html>");
+
+  // Write the complete HTML with styles
+  printWindow.document.write(htmlString);
   printWindow.document.close();
 
-  // Close window after print completes
-  printWindow.onafterprint = () => {
-    printWindow.close();
+  // Wait for content to load before printing (especially on Windows)
+  printWindow.onload = () => {
+    // Ensure styles are applied
+    setTimeout(() => {
+      printWindow.print();
+
+      // Close window after print completes
+      printWindow.onafterprint = () => {
+        printWindow.close();
+      };
+    }, 250);
   };
 
-  // Trigger print dialog
-  printWindow.print();
+  // Fallback if onload doesn't trigger
+  setTimeout(() => {
+    if (printWindow && !printWindow.closed) {
+      printWindow.print();
+      printWindow.onafterprint = () => {
+        printWindow.close();
+      };
+    }
+  }, 1000);
 };
