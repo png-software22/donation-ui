@@ -181,7 +181,7 @@ export default function DonationReport() {
   const columns = [
     {
       name: "Donation Date",
-      selector: (row) => moment(row.createdAt).format("DD/MM/YYYY hh:mm A"),
+      selector: (row) => moment(row.donationDate).format("DD/MM/YYYY hh:mm A"),
       sortable: true,
       width: "190px",
     },
