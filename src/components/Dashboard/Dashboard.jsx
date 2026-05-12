@@ -6,6 +6,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import DonationReport from "./Reports/DonationReport";
 import AddExpense from "../Dashboard/Expenses/AddExpense";
+import AddCity from "../Dashboard/Cities/AddCity";
 
 import {
   Container,
@@ -98,6 +99,9 @@ export default function Dashboard() {
         {menu === "donations" && <DonorFlow />}
         {menu === "add-donation" && <DonorForm />}
         {menu === "expenses" && <AddExpense />}
+        {menu === "manage-cities" && (
+          <AddCity goBack={() => setMenu("dashboard")} />
+        )}
         {menu === "reports" && <DonationReport />}
       </div>
       <ToastContainer position="top-right" autoClose={2000} />

@@ -10,6 +10,7 @@ import {
   FiArrowRightCircle,
   FiLayers,
   FiLogOut,
+  FiMapPin,
 } from "react-icons/fi";
 import { USER_KEY } from "../../constant";
 
@@ -26,6 +27,11 @@ export default function Sidebar({ onMenuSelect, activeMenu }) {
       icon: <FiUsers size={18} />,
     },
     { key: "expenses", label: "Expenses", icon: <FiFileText size={18} /> },
+    {
+      key: "manage-cities",
+      label: "Manage Cities",
+      icon: <FiMapPin size={18} />,
+    },
     { key: "reports", label: "Reports", icon: <FiLayers size={18} /> },
   ];
 
